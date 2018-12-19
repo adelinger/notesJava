@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.widget.LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".login_activity"
+    android:weightSum="2">
+
+    <EditText
+        android:id="@+id/userNameTextView"
+        android:layout_width="270dip"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.1"
+        android:layout_gravity="center"
+        android:layout_marginTop="125dp"
+        android:ems="10"
+        android:inputType="textPersonName"
+        android:hint="Korisničko ime"
+        android:text="" />
+    <EditText
+        android:id="@+id/passwordTextView"
+        android:layout_width="270dip"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.1"
+        android:layout_gravity="center"
+        android:hint="Password"
+        android:text=""
+        android:ems="10"
+        android:inputType="textPassword" />
+
+    <CheckBox
+        android:id="@+id/zapamtiMeCheckBox"
+        android:layout_gravity="center"
+        android:layout_width="270dip"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.1"
+        android:buttonTint="#4ebaaa"
+        android:text="Zapamti me" />
+
+    <Button
+        android:id="@+id/loginButton"
+        android:layout_width="270dip"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.1"
+        android:layout_marginTop="15dp"
+        android:layout_gravity="center"
+        android:background="#4ebaaa"
+        android:textColor="#FFFFFF"
+
+        android:text="Prijavi se" />
+</android.widget.LinearLayout>
