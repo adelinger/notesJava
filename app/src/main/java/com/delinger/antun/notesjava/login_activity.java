@@ -32,6 +32,9 @@ public class login_activity extends AppCompatActivity {
     private Boolean zapamtiMe;
     ProgressDialog progressDialog;
 
+    private String name;
+    private String lastName;
+
     private userLocalStorage userLocalStorage;
 
     @Override
@@ -84,9 +87,9 @@ public class login_activity extends AppCompatActivity {
               progressDialog.dismiss();
 
                 try {
+                    userAuthenticated = true;
                     JSONObject jsonresponse = new JSONObject(response);
-                    userAuthenticated = jsonresponse.getBoolean("success");
-                    Toast.makeText(login_activity.this, userAuthenticated.toString(), Toast.LENGTH_LONG).show();
+                    Toast.makeText(login_activity.this, jsonresponse.toString(), Toast.LENGTH_LONG).show();
 
                 } catch (JSONException e) {
                     Log.e("shit", e.getMessage());
