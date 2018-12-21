@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">notesJava</string>
+    <string name="title_activity_someact">someact</string>
 </resources>

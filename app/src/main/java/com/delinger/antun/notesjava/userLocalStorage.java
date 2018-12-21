@@ -12,11 +12,10 @@ public class userLocalStorage {
         userLocalDatabase = context.getSharedPreferences(SP_NAME, 0);
     }
 
-    public void storeUserData(String username, String password, Boolean zapamtiMe) {
+    public void storeUserData(String username, String password) {
         SharedPreferences.Editor userLocalDatabaseEditor = userLocalDatabase.edit();
         userLocalDatabaseEditor.putString("username", username);
         userLocalDatabaseEditor.putString("password", password);
-        userLocalDatabaseEditor.putBoolean("zapamtiMe", zapamtiMe);
         userLocalDatabaseEditor.apply();
     }
 
