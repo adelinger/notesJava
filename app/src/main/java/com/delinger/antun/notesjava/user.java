@@ -1,10 +1,12 @@
 package com.delinger.antun.notesjava;
 
-public class user{
-    private String username;
-    private String firstname;
-    private String lastname;
-    private String password;
+import java.io.Serializable;
+
+public class user implements Serializable {
+    public String username;
+    public String firstname;
+    public String lastname;
+    public String password;
 
     public String getUsername() {
         return username;

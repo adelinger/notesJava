@@ -56,8 +56,12 @@ public class login_activity extends AppCompatActivity {
         loginButton   = findViewById(R.id.loginButton);
         zapamtiMeCB   = findViewById(R.id.zapamtiMeCheckBox);
 
-        this.setTitle("Prijava u sustav");
-        if(userIsAlreadyLoggedIn()) goToMainAcitivity();
+        instantiateObjects();
+
+        if(userIsAlreadyLoggedIn()) {
+            getPartnerData();
+            goToMainAcitivity();
+        }
 
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -65,7 +69,6 @@ public class login_activity extends AppCompatActivity {
                  username  = usernameTV.getText().toString().trim();
                  password  = passwordTV.getText().toString().trim();
 
-                 instantiateObjects();
                  startProgressDialog();
                  authUser();
             }
@@ -87,16 +90,21 @@ public class login_activity extends AppCompatActivity {
 
     private void goToMainAcitivity() {
         Intent intent = new Intent(login_activity.this, MainActivity.class);
+        intent.putExtra("partner", partner);
+        intent.putExtra("user", user);
+        this.finishAffinity();
         startActivity(intent);
     }
 
     private void logIn() {
-        userLocalStorage.storeUserData(username, password);
+
+        if(!userIsAlreadyLoggedIn()) userLocalStorage.storeUserData(username, password, user.getFirstname(), user.getLastname());
         if(zapamtiMe)userLocalStorage.setUserLoggedIn(true);
         goToMainAcitivity();
 
     }
     private void throwBadAuthDialog() {
+        progressDialog.dismiss();
         AlertDialog.Builder builder = new AlertDialog.Builder(login_activity.this);
         builder.setMessage("Neuspješna prijava");
         builder.setPositiveButton("Pokušaj ponovno", new DialogInterface.OnClickListener() {
@@ -121,8 +129,6 @@ public class login_activity extends AppCompatActivity {
 
             @Override
             public void onResponse(String response) {
-              progressDialog.dismiss();
-
                 try {
                     JSONArray jsonresponse = new JSONArray(response);
                     if(jsonresponse.length() > 0) userAuthenticated = true;
@@ -142,7 +148,7 @@ public class login_activity extends AppCompatActivity {
                     userAuthenticated = false;
                 }
 
-                if(userAuthenticated)logIn(); getPartnerData();
+                if(userAuthenticated) getPartnerData();
                 if(!userAuthenticated)throwBadAuthDialog();
             }
         };
@@ -160,44 +166,42 @@ public class login_activity extends AppCompatActivity {
         queue.add(loginRequest);
     }
 
-    private void getPartnerData() {
-        Response.Listener listener = new Response.Listener() {
+    public void getPartnerData() {
+        Response.Listener<String> listener = new Response.Listener<String>() {
             @Override
-            public void onResponse(Object response) {
+            public void onResponse(String response) {
+                progressDialog.dismiss();
                 try {
                     JSONArray jsonresponse = new JSONArray(response);
+
                     for (int i = 0; i < jsonresponse.length(); i++) {
-                        JSONObject Jasonobject = new JSONObject();
-                        Jasonobject = jsonresponse.getJSONObject(i);
+                        JSONObject  Jsonobject = jsonresponse.getJSONObject(i);
 
-                        partner.firstnameList.add(i,Jasonobject.getString("firstname"));
-                        partner.lastnameList. add(i,Jasonobject.getString("lastname"));
-                        partner.phoneList.    add(i, Jasonobject.getString("phone"));
-                        partner.emailList.    add(i, Jasonobject.getString("email"));
-                        partner.idList.       add(i, Jasonobject.getString("id"));
+                        partner.firstnameList.add(i,Jsonobject.getString("firstname"));
+                        partner.lastnameList. add(i,Jsonobject.getString("lastname"));
+                        partner.phoneList.    add(i,Jsonobject.getString("phone"));
+                        partner.emailList.    add(i,Jsonobject.getString("email"));
+                        partner.idList.       add(i,Jsonobject.getInt("id"));
                     }
-
-
                 } catch (JSONException e) {
                     Log.e("shit", e.getMessage());
                 }
-            }
-        };
-        Response.ErrorListener errorListener = new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
 
+                logIn();
             }
         };
 
-        partnerDataClass partnerDataClass = new partnerDataClass(listener, errorListener);
+        partnerDataClass partnerDataClass = new partnerDataClass(listener);
         RequestQueue queue = Volley.newRequestQueue(login_activity.this);
         queue.add(partnerDataClass);
     }
 
     private void instantiateObjects() {
+        this.setTitle("Prijava u sustav");
+
         zapamtiMe             = false;
 
+        progressDialog        = new ProgressDialog(login_activity.this);
         partner               = new partner();
         partner.firstnameList = new ArrayList<>();
         partner.lastnameList  = new ArrayList<>();
@@ -211,4 +215,3 @@ public class login_activity extends AppCompatActivity {
     }
 }
 
-//TODO problem with getpartnerdata array tofix

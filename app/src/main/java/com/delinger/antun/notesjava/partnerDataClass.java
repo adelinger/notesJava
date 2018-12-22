@@ -11,8 +11,9 @@ public class partnerDataClass extends StringRequest {
     private static final String partnerDataURL = "https://autotoni.hr/notes/partnerdata.php";
     private Map<String, String> params;
 
-    public partnerDataClass(Response.Listener<String> listener, Response.ErrorListener er ){
-        super(Request.Method.POST, partnerDataURL, listener, er);
+    public partnerDataClass(Response.Listener<String> listener ){
+        super(Request.Method.POST, partnerDataURL, listener, null);
+        params= new HashMap<>();
 
     }
     @Override
