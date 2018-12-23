@@ -1,7 +1,6 @@
 package com.delinger.antun.notesjava;
 
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -22,6 +21,12 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.Volley;
+import com.delinger.antun.notesjava.DatabaseConnections.login_request;
+import com.delinger.antun.notesjava.DatabaseConnections.partnerDataClass;
+import com.delinger.antun.notesjava.HelperClasses.userLocalStorage;
+import com.delinger.antun.notesjava.HelperClasses.connection;
+import com.delinger.antun.notesjava.Objects.partner;
+import com.delinger.antun.notesjava.Objects.user;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -43,8 +48,9 @@ public class login_activity extends AppCompatActivity {
 
     partner partner;
     user user;
+    connection connection;
 
-    private userLocalStorage userLocalStorage;
+    private com.delinger.antun.notesjava.HelperClasses.userLocalStorage userLocalStorage;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -68,6 +74,11 @@ public class login_activity extends AppCompatActivity {
             public void onClick(View view) {
                  username  = usernameTV.getText().toString().trim();
                  password  = passwordTV.getText().toString().trim();
+
+                 if (!connection.isNetworkAvailable(login_activity.this)) {
+                     Toast.makeText(login_activity.this, "Nije moguće izvršiti prijavu. Nije pronađena veza na internet", Toast.LENGTH_LONG).show();
+                     return;
+                 }
 
                  startProgressDialog();
                  authUser();
@@ -97,7 +108,6 @@ public class login_activity extends AppCompatActivity {
     }
 
     private void logIn() {
-
         if(!userIsAlreadyLoggedIn()) userLocalStorage.storeUserData(username, password, user.getFirstname(), user.getLastname());
         if(zapamtiMe)userLocalStorage.setUserLoggedIn(true);
         goToMainAcitivity();
@@ -212,6 +222,7 @@ public class login_activity extends AppCompatActivity {
         user = new user();
 
         userLocalStorage      = new userLocalStorage(this);
+        connection            = new connection();
     }
 }
 

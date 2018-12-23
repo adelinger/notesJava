@@ -1,7 +1,5 @@
 package com.delinger.antun.notesjava;
 
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -14,22 +12,21 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.toolbox.Volley;
+import com.delinger.antun.notesjava.DatabaseConnections.partnerDataClass;
+import com.delinger.antun.notesjava.HelperClasses.connection;
+import com.delinger.antun.notesjava.HelperClasses.customListPartnersAdapter;
+import com.delinger.antun.notesjava.HelperClasses.userLocalStorage;
+import com.delinger.antun.notesjava.Objects.partner;
+import com.delinger.antun.notesjava.Objects.user;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.security.auth.login.LoginException;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -39,10 +36,12 @@ public class MainActivity extends AppCompatActivity {
     Toolbar myToolbar2;
     SharedPreferences userLocalDatabase;
     userLocalStorage userLocalStorage;
+
     partner partner;
     user user;
     Intent intent;
     ProgressDialog progressDialog;
+    connection connection;
 
     @Override
 
@@ -59,6 +58,7 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(myToolbar);
 
         instantiateObject();
+        getPartnerData();
         getUserData();
 
         addButton.setOnClickListener(new View.OnClickListener() {
@@ -89,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
     private void instantiateObject() {
         intent  = getIntent();
         partner = new partner();
-        partner = (com.delinger.antun.notesjava.partner) intent.getSerializableExtra("partner");
+        partner = (com.delinger.antun.notesjava.Objects.partner) intent.getSerializableExtra("partner");
         try {
             if (partner.idList.size() == 0){ getPartnerData(); getUserData();}
             else setPartnersList();
@@ -98,7 +98,8 @@ public class MainActivity extends AppCompatActivity {
             Log.e("shit", e.getMessage());
         }
 
-        user = new user();
+        user       = new user();
+        connection = new connection();
     }
 
     private void startProgressDialog(){
@@ -109,34 +110,54 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void getPartnerData() {
-        startProgressDialog();
-        Response.Listener<String> listener = new Response.Listener<String>() {
-            @Override
-            public void onResponse(String response) {
-                try {
-                    JSONArray jsonresponse = new JSONArray(response);
+        if(!connection.isNetworkAvailable(MainActivity.this)) {
+            logOut();
+        }
+        try {
+            if (partner.idList.size() == 0){
+                startProgressDialog();
+                Response.Listener<String> listener = new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        try {
+                            JSONArray jsonresponse = new JSONArray(response);
 
-                    for (int i = 0; i < jsonresponse.length(); i++) {
-                        JSONObject  Jsonobject = jsonresponse.getJSONObject(i);
+                            for (int i = 0; i < jsonresponse.length(); i++) {
+                                JSONObject  Jsonobject = jsonresponse.getJSONObject(i);
 
-                        partner.firstnameList.add(i,Jsonobject.getString("firstname"));
-                        partner.lastnameList. add(i,Jsonobject.getString("lastname").trim());
-                        partner.phoneList.    add(i,Jsonobject.getString("phone"));
-                        partner.emailList.    add(i,Jsonobject.getString("email"));
-                        partner.idList.       add(i,Jsonobject.getInt("id"));
+                                partner.firstnameList.add(i,Jsonobject.getString("firstname"));
+                                partner.lastnameList. add(i,Jsonobject.getString("lastname").trim());
+                                partner.phoneList.    add(i,Jsonobject.getString("phone"));
+                                partner.emailList.    add(i,Jsonobject.getString("email"));
+                                partner.idList.       add(i,Jsonobject.getInt("id"));
+                            }
+                        } catch (JSONException e) {
+                            Log.e("shit", e.getMessage());
+                        }
+                        progressDialog.dismiss();
+                        setPartnersList();
                     }
-                } catch (JSONException e) {
-                    Log.e("shit", e.getMessage());
+
+                };
+
+                partnerDataClass partnerDataClass = new partnerDataClass(listener);
+                RequestQueue queue = Volley.newRequestQueue(MainActivity.this);
+                queue.add(partnerDataClass);
                 }
-                progressDialog.dismiss();
-                setPartnersList();
-            }
 
-        };
+            else setPartnersList();
+        }
+        catch (Exception e) {
+            Log.e("shit", e.getMessage());
+        }
 
-        partnerDataClass partnerDataClass = new partnerDataClass(listener);
-        RequestQueue queue = Volley.newRequestQueue(MainActivity.this);
-        queue.add(partnerDataClass);
+    }
+
+    private void logOut() {
+        Intent intent = new Intent(MainActivity.this, login_activity.class);
+        userLocalStorage.setUserLoggedIn(false);
+        startActivity(intent);
+        this.finish();
     }
 
 
@@ -151,10 +172,7 @@ public class MainActivity extends AppCompatActivity {
         Integer id = item.getItemId();
 
         if (id == R.id.logOut) {
-            Intent intent = new Intent(MainActivity.this, login_activity.class);
-            userLocalStorage.setUserLoggedIn(false);
-            startActivity(intent);
-            this.finish();
+            logOut();
             return true;
         }
         return super.onOptionsItemSelected(item);

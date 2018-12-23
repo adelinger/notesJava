@@ -1,4 +1,4 @@
-package com.delinger.antun.notesjava;
+package com.delinger.antun.notesjava.HelperClasses;
 
 import android.content.Context;
 import android.content.SharedPreferences;

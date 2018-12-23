@@ -1,4 +1,4 @@
-package com.delinger.antun.notesjava;
+package com.delinger.antun.notesjava.Objects;
 
 import android.net.sip.SipSession;
 
@@ -12,11 +12,11 @@ public class partner implements Serializable {
     public List<String> phoneList;
     public List<Integer> idList;
 
-    private String firstname;
-    private String lastName;
-    private String email;
-    private String phone;
-    private Integer id;
+    public String firstname;
+    public String lastName;
+    public String email;
+    public String phone;
+    public Integer id;
 
 
     public String getFirstname() {

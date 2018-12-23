@@ -1,4 +1,4 @@
-package com.delinger.antun.notesjava;
+package com.delinger.antun.notesjava.Objects;
 
 import java.io.Serializable;
 
