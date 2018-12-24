@@ -1,7 +1,9 @@
 package com.delinger.antun.notesjava;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.design.widget.FloatingActionButton;
@@ -12,13 +14,16 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.toolbox.Volley;
 import com.delinger.antun.notesjava.DatabaseConnections.partnerDataClass;
 import com.delinger.antun.notesjava.HelperClasses.connection;
+import com.delinger.antun.notesjava.addNewPartnerFragment;
 import com.delinger.antun.notesjava.HelperClasses.customListPartnersAdapter;
 import com.delinger.antun.notesjava.HelperClasses.userLocalStorage;
 import com.delinger.antun.notesjava.Objects.partner;
@@ -28,7 +33,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements addNewPartnerFragment.partnerOptions {
 
     ListView partnersListView;
     FloatingActionButton addButton;
@@ -42,6 +47,9 @@ public class MainActivity extends AppCompatActivity {
     Intent intent;
     ProgressDialog progressDialog;
     connection connection;
+    customListPartnersAdapter adapter;
+
+    private Boolean refresh;
 
     @Override
 
@@ -68,11 +76,48 @@ public class MainActivity extends AppCompatActivity {
                 addNewPartnerFragment.show(getFragmentManager().beginTransaction(), "addNewPartnerFragment");
             }
         });
+        partnersListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
+                performOnLongPressAction(i);
+                return false;
+            }
+        });
+    }
+
+    private void performOnLongPressAction(final Integer position) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+        builder.setPositiveButton("Izmijeni partnera", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface builder, int which) {
+                Bundle bundle = new Bundle();
+
+                bundle.putString("firstname",partner.firstnameList.get(position));
+                bundle.putString("lastname", partner.lastnameList .get(position));
+                bundle.putString("email",    partner.emailList    .get(position));
+                bundle.putString("phone",    partner.phoneList    .get(position));
+                bundle.putInt   ("id",       partner.idList       .get(position));
+
+                addNewPartnerFragment addNewPartnerFragment = new addNewPartnerFragment();
+                addNewPartnerFragment.setArguments(bundle);
+                addNewPartnerFragment.show(getFragmentManager().beginTransaction(), "update");
+            }
+
+        });
+        builder.setNeutralButton("Obriši partnera", new DialogInterface.OnClickListener(){
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+
+            }
+        });
+        builder.create();
+        builder.setCancelable(true);
+        builder.show();
     }
 
     private void setPartnersList() {
-
-        customListPartnersAdapter adapter = new customListPartnersAdapter(MainActivity.this, partner.firstnameList, partner.lastnameList, partner.idList);
+        partnersListView.setAdapter(null);
+        adapter = new customListPartnersAdapter(MainActivity.this, partner.firstnameList, partner.lastnameList, partner.idList);
         partnersListView.setAdapter(adapter);
     }
 
@@ -100,6 +145,7 @@ public class MainActivity extends AppCompatActivity {
 
         user       = new user();
         connection = new connection();
+        refresh    = false;
     }
 
     private void startProgressDialog(){
@@ -114,7 +160,7 @@ public class MainActivity extends AppCompatActivity {
             logOut();
         }
         try {
-            if (partner.idList.size() == 0){
+            if (partner.idList.size() == 0 || refresh){
                 startProgressDialog();
                 Response.Listener<String> listener = new Response.Listener<String>() {
                     @Override
@@ -181,6 +227,20 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         this.finishAffinity();
+    }
+
+    @Override
+    public void complete(Boolean complete) {
+        if(complete) {
+            partner.firstnameList.clear();
+            partner.lastnameList. clear();
+            partner.emailList.    clear();
+            partner.phoneList.    clear();
+            partner.idList.       clear();
+
+            refresh = true;
+            getPartnerData();
+        }
     }
 }
 
