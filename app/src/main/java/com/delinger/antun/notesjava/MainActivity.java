@@ -83,6 +83,25 @@ public class MainActivity extends AppCompatActivity implements addNewPartnerFrag
                 return false;
             }
         });
+        partnersListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                performItemClickAction(i);
+            }
+        });
+    }
+
+    private void performItemClickAction(Integer i) {
+
+        Intent intent = new Intent(MainActivity.this, viewPartnerActivity.class);
+
+        intent.putExtra("firstname", partner.firstnameList.get(i));
+        intent.putExtra("lastname",  partner.lastnameList.get(i));
+        intent.putExtra("email",     partner.emailList.get(i));
+        intent.putExtra("phone",     partner.phoneList.get(i));
+        intent.putExtra("id",        partner.idList.get(i));
+
+        startActivity(intent);
     }
 
     private void performOnLongPressAction(final Integer position) {
@@ -90,29 +109,33 @@ public class MainActivity extends AppCompatActivity implements addNewPartnerFrag
         builder.setPositiveButton("Izmijeni partnera", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface builder, int which) {
-                Bundle bundle = new Bundle();
-
-                bundle.putString("firstname",partner.firstnameList.get(position));
-                bundle.putString("lastname", partner.lastnameList .get(position));
-                bundle.putString("email",    partner.emailList    .get(position));
-                bundle.putString("phone",    partner.phoneList    .get(position));
-                bundle.putInt   ("id",       partner.idList       .get(position));
-
-                addNewPartnerFragment addNewPartnerFragment = new addNewPartnerFragment();
-                addNewPartnerFragment.setArguments(bundle);
-                addNewPartnerFragment.show(getFragmentManager().beginTransaction(), "update");
+              goToFragment(position, "update");
             }
 
         });
         builder.setNeutralButton("Obriši partnera", new DialogInterface.OnClickListener(){
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-
+                goToFragment(position, "delete");
             }
         });
         builder.create();
         builder.setCancelable(true);
         builder.show();
+    }
+
+    private void goToFragment(Integer position, String tag) {
+        Bundle bundle = new Bundle();
+
+        bundle.putString("firstname",partner.firstnameList.get(position));
+        bundle.putString("lastname", partner.lastnameList .get(position));
+        bundle.putString("email",    partner.emailList    .get(position));
+        bundle.putString("phone",    partner.phoneList    .get(position));
+        bundle.putInt   ("id",       partner.idList       .get(position));
+
+        addNewPartnerFragment addNewPartnerFragment = new addNewPartnerFragment();
+        addNewPartnerFragment.setArguments(bundle);
+        addNewPartnerFragment.show(getFragmentManager().beginTransaction(), tag);
     }
 
     private void setPartnersList() {

@@ -49,7 +49,7 @@
         android:layout_width="300dip"
         android:layout_height="wrap_content"
         android:ems="10"
-        android:inputType="textPersonName"
+        android:inputType="phone"
         android:text=""
         android:layout_gravity="center"
         android:layout_marginLeft="10dp"

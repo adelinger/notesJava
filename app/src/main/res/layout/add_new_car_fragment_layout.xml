@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.widget.LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <EditText
+        android:id="@+id/carName"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:inputType="textPersonName"
+        android:layout_marginTop="5dp"
+        android:layout_gravity="center"
+        android:hint="Naziv vozila"
+       />
+    <EditText
+        android:id="@+id/requiredWork"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:inputType="textPersonName"
+        android:layout_marginTop="5dp"
+        android:layout_gravity="center"
+        android:lines="3"
+        android:maxLines="3"
+        android:hint="Tip popravka"
+         />
+    <Button
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/addCarTODBButton"
+        android:layout_gravity="center"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="5dp"
+        android:text="Dodaj vozilo"
+        android:textColor="#FFFFFF"
+        android:background="@color/colorPrimary"
+        />
+
+
+
+</android.widget.LinearLayout>

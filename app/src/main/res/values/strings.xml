@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">notesJava</string>
     <string name="title_activity_someact">someact</string>
+    <string name="title_activity_view_partner">viewPartnerActivity</string>
 </resources>

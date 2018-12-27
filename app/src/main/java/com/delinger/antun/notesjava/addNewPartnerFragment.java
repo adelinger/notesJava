@@ -22,6 +22,7 @@ import android.widget.Toast;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.toolbox.Volley;
+import com.delinger.antun.notesjava.DatabaseConnections.delete_partner;
 import com.delinger.antun.notesjava.DatabaseConnections.insertPartner;
 import com.delinger.antun.notesjava.DatabaseConnections.update_partner;
 import com.delinger.antun.notesjava.HelperClasses.connection;
@@ -55,6 +56,7 @@ public class addNewPartnerFragment extends DialogFragment {
     private String tag;
     private Boolean insert;
     private Boolean update;
+    private Boolean delete;
 
     public interface partnerOptions {
         void complete(Boolean complete);
@@ -85,6 +87,7 @@ public class addNewPartnerFragment extends DialogFragment {
         instantiateObjects();
         setButtonTitle();
 
+
         addPartnerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -93,40 +96,85 @@ public class addNewPartnerFragment extends DialogFragment {
                 if(!textIsEntered()) {
                     Toast.makeText(getDialog().getContext(), "Morate upisati ime i prezime partnera kako biste ga mogli spremiti.", Toast.LENGTH_LONG).show(); return;
                 }
+                if(!connection.isNetworkAvailable(getDialog().getContext())) throwNotSuccessfulMessage("Nema internet veze.");
 
-                if(!connection.isNetworkAvailable(getDialog().getContext())) throwNotSuccessfulMessage();
+                progressDialog.start();
 
-                if(insert){
-                    if( connection.isNetworkAvailable(getDialog().getContext())) insertPartner();
-                }
-                if (update) {
-                    updatePartner();
-                }
+                if(insert) insertPartner();
+                if(update) updatePartner();
             }
         });
 
         return view;
     }
 
+    @Override
+    public void onResume() {
+        if(delete) {
+            getDialog().hide();
+            showWarningMessageAndDeleteIfAccepted();
+        }
+        super.onResume();
+    }
+
+    private void showWarningMessageAndDeleteIfAccepted() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getDialog().getContext());
+        builder.setMessage("Jeste li sigurni da želite obrisati partnera: "+ partner.firstname + " " + partner.lastName);
+        builder.setPositiveButton("Obriši", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface builder, int which) {
+                deletePartner();
+            }
+
+        });
+        builder.setNegativeButton("Odustani", new DialogInterface.OnClickListener(){
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                return;
+            }
+        });
+        builder.create();
+        builder.setCancelable(false);
+        builder.show();
+    }
+
+    private void deletePartner() {
+        Response.Listener<String> listener = new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                checkIfSuccessful(response, "Uspješno obrisano.", "Brisanje neuspješno.");
+            }
+        };
+
+        delete_partner delete_partner = new delete_partner(partner.id, listener);
+        RequestQueue queue = Volley.newRequestQueue(getDialog().getContext());
+        queue.add(delete_partner);
+    }
+
+    private void checkIfSuccessful(String response, String succesMessage, String noSuccesMessage) {
+        try {
+            JSONArray jsonresponse = new JSONArray(response);
+            for(int i=0;i<jsonresponse.length();i++)
+            {
+                JSONObject Jasonobject = null;
+                Jasonobject = jsonresponse.getJSONObject(i);
+                save_result =  Jasonobject.getInt("rezultat");
+
+                if(save_result == 0)throwNotSuccessfulMessage(noSuccesMessage);
+                if(save_result == 1) closeDialog(succesMessage);
+            }
+
+        } catch (JSONException e) {
+            Log.e("shit", e.getMessage());
+        }
+    }
+
     private void updatePartner() {
         Response.Listener<String> listener = new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
-                try {
-                    JSONArray jsonresponse = new JSONArray(response);
-                    for(int i=0;i<jsonresponse.length();i++)
-                    {
-                        JSONObject Jasonobject = null;
-                        Jasonobject = jsonresponse.getJSONObject(i);
-                        save_result =  Jasonobject.getInt("rezultat");
-
-                        if(save_result == 0)throwNotSuccessfulMessage();
-                        if(save_result == 1) closeDialog();
-                    }
-
-                } catch (JSONException e) {
-                    Log.e("shit", e.getMessage());
-                }
+                progressDialog.dismis();
+               checkIfSuccessful(response, "Uspješna izmjena.", "Neuspješna izmjena.");
             }
         };
 
@@ -154,10 +202,18 @@ public class addNewPartnerFragment extends DialogFragment {
             addPartnerButton.setText("Dodaj partnera");
             insert = true;
             update = false;
+            delete = false;
         }
-       else {
+       if(tag == "update") {
             addPartnerButton.setText("Izmijeni partnera");
             update = true;
+            insert = false;
+            delete = false;
+            getPartnerDataFromBundle();
+        }
+        if(tag == "delete") {
+            delete = true;
+            update = false;
             insert = false;
             getPartnerDataFromBundle();
         }
@@ -179,22 +235,7 @@ public class addNewPartnerFragment extends DialogFragment {
             @Override
             public void onResponse(String response) {
                 progressDialog.dismis();
-                save_result = 0;
-                try {
-                    JSONArray jsonresponse = new JSONArray(response);
-                    for(int i=0;i<jsonresponse.length();i++)
-                    {
-                        JSONObject Jasonobject = null;
-                        Jasonobject = jsonresponse.getJSONObject(i);
-                        save_result =  Jasonobject.getInt("rezultat");
-
-                        if(save_result == 0)throwNotSuccessfulMessage();
-                        if(save_result == 1) closeDialog();
-                    }
-
-                } catch (JSONException e) {
-                    Log.e("shit", e.getMessage());
-                }
+               checkIfSuccessful(response, "Partner uspješno dodan.", "Neuspješno dodavanje.");
             }
         };
         insertPartner insertPartner = new insertPartner(partner.getFirstname(), partner.getLastName(), partner.getEmail(), partner.getPhone(), listener);
@@ -202,9 +243,9 @@ public class addNewPartnerFragment extends DialogFragment {
         queue.add(insertPartner);
     }
 
-    private void closeDialog() {
+    private void closeDialog(String message) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getDialog().getContext());
-        builder.setMessage("Partner uspješno spremljen");
+        builder.setMessage(message);
         builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface builder, int which) {
@@ -218,9 +259,9 @@ public class addNewPartnerFragment extends DialogFragment {
         builder.show();
     }
 
-    private void throwNotSuccessfulMessage() {
+    private void throwNotSuccessfulMessage(String noSuccessMessage) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getDialog().getContext());
-        builder.setMessage("Partner nije spremljen. Došlo je do greške.");
+        builder.setMessage(noSuccessMessage);
         builder.setPositiveButton("Pokušaj ponovno", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface builder, int which) {
