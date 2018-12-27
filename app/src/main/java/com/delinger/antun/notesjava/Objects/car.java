@@ -10,14 +10,20 @@ public class car implements Serializable {
     private Integer id;
     private String receiptDate;
     private String dispatchDate;
-    private String partnerID;
+    private Integer partnerID;
+    private String note;
 
-    private List<String> nameList;
-    private List<String> workRequiredList;
-    private List<Integer> idList;
-    private List<String> receiptDateList;
-    private List<String> dispatchDateList;
-    private List<String> partnerIDList;
+
+
+    public List<String> nameList;
+    public List<String> workRequiredList;
+    public List<Integer> idList;
+    public List<String> receiptDateList;
+    public List<String> dispatchDateList;
+    public List<Integer> partnerIDList;
+    public List<String> noteList;
+
+
 
     public String getName() {
         return name;
@@ -59,11 +65,11 @@ public class car implements Serializable {
         this.dispatchDate = dispatchDate;
     }
 
-    public String getPartnerID() {
+    public Integer getPartnerID() {
         return partnerID;
     }
 
-    public void setPartnerID(String partnerID) {
+    public void setPartnerID(Integer partnerID) {
         this.partnerID = partnerID;
     }
 
@@ -107,13 +113,26 @@ public class car implements Serializable {
         this.dispatchDateList = dispatchDateList;
     }
 
-    public List<String> getPartnerIDList() {
+    public List<Integer> getPartnerIDList() {
         return partnerIDList;
     }
 
-    public void setPartnerIDList(List<String> partnerIDList) {
+    public void setPartnerIDList(List<Integer> partnerIDList) {
         this.partnerIDList = partnerIDList;
     }
+    public List<String> getNoteList() {
+        return noteList;
+    }
 
+    public void setNoteList(List<String> noteList) {
+        this.noteList = noteList;
+    }
+    public String getNote() {
+        return note;
+    }
+
+    public void setNote(String note) {
+        this.note = note;
+    }
 
 }

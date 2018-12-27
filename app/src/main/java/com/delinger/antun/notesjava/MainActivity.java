@@ -21,17 +21,22 @@ import android.widget.Toast;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.toolbox.Volley;
+import com.delinger.antun.notesjava.DatabaseConnections.add_car;
+import com.delinger.antun.notesjava.DatabaseConnections.get_cars;
 import com.delinger.antun.notesjava.DatabaseConnections.partnerDataClass;
 import com.delinger.antun.notesjava.HelperClasses.connection;
 import com.delinger.antun.notesjava.addNewPartnerFragment;
 import com.delinger.antun.notesjava.HelperClasses.customListPartnersAdapter;
 import com.delinger.antun.notesjava.HelperClasses.userLocalStorage;
 import com.delinger.antun.notesjava.Objects.partner;
+import com.delinger.antun.notesjava.Objects.car;
 import com.delinger.antun.notesjava.Objects.user;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity implements addNewPartnerFragment.partnerOptions {
 
@@ -44,6 +49,7 @@ public class MainActivity extends AppCompatActivity implements addNewPartnerFrag
 
     partner partner;
     user user;
+    car car;
     Intent intent;
     ProgressDialog progressDialog;
     connection connection;
@@ -68,6 +74,7 @@ public class MainActivity extends AppCompatActivity implements addNewPartnerFrag
         instantiateObject();
         getPartnerData();
         getUserData();
+        getCarData();
 
         addButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -91,10 +98,42 @@ public class MainActivity extends AppCompatActivity implements addNewPartnerFrag
         });
     }
 
+    private void getCarData() {
+        Response.Listener<String> listener = new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                progressDialog.dismiss();
+
+                try {
+                    JSONArray jsonresponse = new JSONArray(response);
+
+                    for (int i = 0; i < jsonresponse.length(); i++) {
+                        JSONObject  Jsonobject = jsonresponse.getJSONObject(i);
+
+                        car.nameList.        add(i,Jsonobject.getString("name"));
+                        car.workRequiredList.add(i, Jsonobject.getString("requiredWork"));
+                        car.receiptDateList. add(i, Jsonobject.getString("receiptdate"));
+                        car.dispatchDateList.add(i, Jsonobject.getString("dispatchdate"));
+                        car.idList.          add(i, Jsonobject.getInt("id"));
+                        car.partnerIDList.   add(i, Jsonobject.getInt("partnerID"));
+                        car.noteList.        add(i, Jsonobject.getString("note"));
+                    }
+                } catch (JSONException e) {
+                    Log.e("shit", e.getMessage());
+                }
+            }
+        };
+
+        get_cars add_car = new get_cars(listener);
+        RequestQueue queue = Volley.newRequestQueue(MainActivity.this);
+        queue.add(add_car);
+    }
+
     private void performItemClickAction(Integer i) {
 
         Intent intent = new Intent(MainActivity.this, viewPartnerActivity.class);
 
+        intent.putExtra("car",       car);
         intent.putExtra("firstname", partner.firstnameList.get(i));
         intent.putExtra("lastname",  partner.lastnameList.get(i));
         intent.putExtra("email",     partner.emailList.get(i));
@@ -103,6 +142,7 @@ public class MainActivity extends AppCompatActivity implements addNewPartnerFrag
 
         startActivity(intent);
     }
+
 
     private void performOnLongPressAction(final Integer position) {
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
@@ -167,8 +207,19 @@ public class MainActivity extends AppCompatActivity implements addNewPartnerFrag
         }
 
         user       = new user();
+        car        = new car();
         connection = new connection();
         refresh    = false;
+
+        progressDialog = new ProgressDialog(MainActivity.this);
+
+        car.noteList         = new ArrayList<>();
+        car.idList           = new ArrayList<>();
+        car.partnerIDList    = new ArrayList<>();
+        car.dispatchDateList = new ArrayList<>();
+        car.receiptDateList  = new ArrayList<>();
+        car.nameList         = new ArrayList<>();
+        car.workRequiredList = new ArrayList<>();
     }
 
     private void startProgressDialog(){
@@ -203,8 +254,8 @@ public class MainActivity extends AppCompatActivity implements addNewPartnerFrag
                         } catch (JSONException e) {
                             Log.e("shit", e.getMessage());
                         }
-                        progressDialog.dismiss();
                         setPartnersList();
+                        getCarData();
                     }
 
                 };

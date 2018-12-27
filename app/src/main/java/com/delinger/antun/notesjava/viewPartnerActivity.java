@@ -1,5 +1,6 @@
 package com.delinger.antun.notesjava;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -16,6 +17,7 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class viewPartnerActivity extends AppCompatActivity {
@@ -26,6 +28,9 @@ public class viewPartnerActivity extends AppCompatActivity {
     private Button   addCarButton;
     private ListView carsListView;
     private Button   addNewClaimButton;
+
+    private List emptyList;
+    private Intent intent;
 
     private partner partner;
     private car car;
@@ -44,6 +49,8 @@ public class viewPartnerActivity extends AppCompatActivity {
 
         instantiateObjects();
         getPartnerData();
+        getCarsData();
+        setListView();
 
         addCarButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -53,10 +60,41 @@ public class viewPartnerActivity extends AppCompatActivity {
         });
     }
 
+    private void getCarsData() {
+        car = (com.delinger.antun.notesjava.Objects.car) getIntent().getSerializableExtra("car");
+        try {
+            for (int i=0; i < car.idList.size(); i++) {
+                if(car.partnerIDList.get(i) != partner.getId()) {
+
+                    car.noteList.        remove(i);
+                    car.partnerIDList.   remove(i);
+                    car.dispatchDateList.remove(i);
+                    car.receiptDateList. remove(i);
+                    car.nameList.        remove(i);
+                    car.workRequiredList.remove(i);
+                    car.idList.          remove(i);
+                }
+            }
+            for (int i=0; i < car.idList.size(); i++) {
+                Log.e("cars", car.nameList.get(i));
+            }
+
+        } catch (Exception e) {
+            Log.e("shit", e.getMessage());
+        }
+
+//TODO završiti ovaj shit s car objectom tofix
+    }
+
+    private void setListView() {
+
+    }
+
     private void goToAddNewCarFragment() {
         addNewCarFragment addNewCar = new addNewCarFragment();
         Bundle bundle = new Bundle();
         bundle.putInt("partnerID", partner.id);
+        addNewCar.setArguments(bundle);
         addNewCar.show(getFragmentManager().beginTransaction(), "addNewCar");
     }
 
@@ -70,7 +108,18 @@ public class viewPartnerActivity extends AppCompatActivity {
 
     private void instantiateObjects() {
         partner = new partner();
-        car     = new car();
+        intent  = new Intent();
+
+        emptyList = new ArrayList<String>();
+
+        car = new car();
+        car.noteList         = new ArrayList<>();
+        car.idList           = new ArrayList<>();
+        car.partnerIDList    = new ArrayList<>();
+        car.dispatchDateList = new ArrayList<>();
+        car.receiptDateList  = new ArrayList<>();
+        car.nameList         = new ArrayList<>();
+        car.workRequiredList = new ArrayList<>();
     }
 
 }
