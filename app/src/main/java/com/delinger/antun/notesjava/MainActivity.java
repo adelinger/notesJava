@@ -23,6 +23,7 @@ import com.android.volley.Response;
 import com.android.volley.toolbox.Volley;
 import com.delinger.antun.notesjava.DatabaseConnections.add_car;
 import com.delinger.antun.notesjava.DatabaseConnections.get_cars;
+import com.delinger.antun.notesjava.DatabaseConnections.get_transactions;
 import com.delinger.antun.notesjava.DatabaseConnections.partnerDataClass;
 import com.delinger.antun.notesjava.HelperClasses.connection;
 import com.delinger.antun.notesjava.addNewPartnerFragment;
@@ -31,6 +32,7 @@ import com.delinger.antun.notesjava.HelperClasses.userLocalStorage;
 import com.delinger.antun.notesjava.Objects.partner;
 import com.delinger.antun.notesjava.Objects.car;
 import com.delinger.antun.notesjava.Objects.user;
+import com.delinger.antun.notesjava.Objects.payment;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -50,6 +52,8 @@ public class MainActivity extends AppCompatActivity implements addNewPartnerFrag
     partner partner;
     user user;
     car car;
+    payment payment;
+
     Intent intent;
     ProgressDialog progressDialog;
     connection connection;
@@ -72,9 +76,12 @@ public class MainActivity extends AppCompatActivity implements addNewPartnerFrag
         setSupportActionBar(myToolbar);
 
         instantiateObject();
+        instantiateCarObject();
+        instantiatePaymentObject();
         getPartnerData();
         getUserData();
         getCarData();
+        getPaymentData();
 
         addButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -87,7 +94,7 @@ public class MainActivity extends AppCompatActivity implements addNewPartnerFrag
             @Override
             public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
                 performOnLongPressAction(i);
-                return false;
+                return true;
             }
         });
         partnersListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -99,14 +106,14 @@ public class MainActivity extends AppCompatActivity implements addNewPartnerFrag
     }
 
     private void getCarData() {
+        instantiateCarObject();
+
         Response.Listener<String> listener = new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
-                progressDialog.dismiss();
 
                 try {
                     JSONArray jsonresponse = new JSONArray(response);
-
                     for (int i = 0; i < jsonresponse.length(); i++) {
                         JSONObject  Jsonobject = jsonresponse.getJSONObject(i);
 
@@ -117,6 +124,7 @@ public class MainActivity extends AppCompatActivity implements addNewPartnerFrag
                         car.idList.          add(i, Jsonobject.getInt("id"));
                         car.partnerIDList.   add(i, Jsonobject.getInt("partnerID"));
                         car.noteList.        add(i, Jsonobject.getString("note"));
+
                     }
                 } catch (JSONException e) {
                     Log.e("shit", e.getMessage());
@@ -129,10 +137,41 @@ public class MainActivity extends AppCompatActivity implements addNewPartnerFrag
         queue.add(add_car);
     }
 
+    private void getPaymentData(){
+        instantiatePaymentObject();
+
+        Response.Listener<String> listener = new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                progressDialog.dismiss();
+                try {
+                    JSONArray jsonresponse = new JSONArray(response);
+
+                    for (int i = 0; i < jsonresponse.length(); i++) {
+                        JSONObject  Jsonobject = jsonresponse.getJSONObject(i);
+                        payment.idList.add(i,        Jsonobject.getInt("id"));
+                        payment.debitList.add(i,     Jsonobject.getInt("debit"));
+                        payment.claimList.add(i,     Jsonobject.getInt("claim"));
+                        payment.dateList.add(i,      Jsonobject.getString("date"));
+                        payment.partnerIdList.add(i, Jsonobject.getInt("partnerID"));
+                        payment.carIdList.add(i,     Jsonobject.getInt("carID"));
+                    }
+                } catch (JSONException e) {
+                    Log.e("shit", e.getMessage());
+                }
+            }
+        };
+
+        get_transactions get_transactions = new get_transactions(listener);
+        RequestQueue queue = Volley.newRequestQueue(MainActivity.this);
+        queue.add(get_transactions);
+    }
+
     private void performItemClickAction(Integer i) {
 
         Intent intent = new Intent(MainActivity.this, viewPartnerActivity.class);
 
+        intent.putExtra("payment",   payment);
         intent.putExtra("car",       car);
         intent.putExtra("firstname", partner.firstnameList.get(i));
         intent.putExtra("lastname",  partner.lastnameList.get(i));
@@ -179,7 +218,6 @@ public class MainActivity extends AppCompatActivity implements addNewPartnerFrag
     }
 
     private void setPartnersList() {
-        partnersListView.setAdapter(null);
         adapter = new customListPartnersAdapter(MainActivity.this, partner.firstnameList, partner.lastnameList, partner.idList);
         partnersListView.setAdapter(adapter);
     }
@@ -207,11 +245,14 @@ public class MainActivity extends AppCompatActivity implements addNewPartnerFrag
         }
 
         user       = new user();
-        car        = new car();
         connection = new connection();
         refresh    = false;
 
         progressDialog = new ProgressDialog(MainActivity.this);
+    }
+
+    private void instantiateCarObject(){
+        car        = new car();
 
         car.noteList         = new ArrayList<>();
         car.idList           = new ArrayList<>();
@@ -221,6 +262,16 @@ public class MainActivity extends AppCompatActivity implements addNewPartnerFrag
         car.nameList         = new ArrayList<>();
         car.workRequiredList = new ArrayList<>();
     }
+   private void instantiatePaymentObject() {
+       payment = new payment();
+       payment.idList        = new ArrayList<>();
+       payment.carIdList     = new ArrayList<>();
+       payment.claimList     = new ArrayList<>();
+       payment.dateList      = new ArrayList<>();
+       payment.debitList     = new ArrayList<>();
+       payment.partnerIdList = new ArrayList<>();
+
+   }
 
     private void startProgressDialog(){
         progressDialog = new ProgressDialog(MainActivity.this);
@@ -255,7 +306,10 @@ public class MainActivity extends AppCompatActivity implements addNewPartnerFrag
                             Log.e("shit", e.getMessage());
                         }
                         setPartnersList();
-                        getCarData();
+                        if(refresh){
+                            getCarData();
+                            getPaymentData();
+                        }
                     }
 
                 };
@@ -317,5 +371,3 @@ public class MainActivity extends AppCompatActivity implements addNewPartnerFrag
         }
     }
 }
-
-// TODO dodati floating action bar add new partner
