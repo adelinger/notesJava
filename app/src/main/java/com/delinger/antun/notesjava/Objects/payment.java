@@ -10,6 +10,7 @@ public class payment implements Serializable {
     public List<String>  dateList;
     public List<Integer> partnerIdList;
     public List<Integer> carIdList;
+    public List<Integer> userIdList;
 
     private Integer id;
     private Integer debit;
@@ -17,6 +18,15 @@ public class payment implements Serializable {
     private Integer date;
     private Integer partnerID;
     private Integer carID;
+    private Integer userID;
+
+    public Integer getUserID() {
+        return userID;
+    }
+
+    public void setUserID(Integer userID) {
+        this.userID = userID;
+    }
 
     public Integer getId() {
         return id;

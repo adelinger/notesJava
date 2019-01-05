@@ -155,6 +155,7 @@ public class MainActivity extends AppCompatActivity implements addNewPartnerFrag
                         payment.dateList.add(i,      Jsonobject.getString("date"));
                         payment.partnerIdList.add(i, Jsonobject.getInt("partnerID"));
                         payment.carIdList.add(i,     Jsonobject.getInt("carID"));
+                        payment.userIdList.add(i,    Jsonobject.getInt("userID"));
                     }
                 } catch (JSONException e) {
                     Log.e("shit", e.getMessage());
@@ -171,7 +172,9 @@ public class MainActivity extends AppCompatActivity implements addNewPartnerFrag
 
         Intent intent = new Intent(MainActivity.this, viewPartnerActivity.class);
 
+        intent.putExtra("user",      user);
         intent.putExtra("payment",   payment);
+        intent.putExtra("partner",   partner);
         intent.putExtra("car",       car);
         intent.putExtra("firstname", partner.firstnameList.get(i));
         intent.putExtra("lastname",  partner.lastnameList.get(i));
@@ -270,6 +273,7 @@ public class MainActivity extends AppCompatActivity implements addNewPartnerFrag
        payment.dateList      = new ArrayList<>();
        payment.debitList     = new ArrayList<>();
        payment.partnerIdList = new ArrayList<>();
+       payment.userIdList    = new ArrayList<>();
 
    }
 

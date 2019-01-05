@@ -10,7 +10,7 @@ import android.support.v7.widget.Toolbar;
 import com.delinger.antun.notesjava.Objects.car;
 import com.delinger.antun.notesjava.Objects.partner;
 import com.delinger.antun.notesjava.Objects.payment;
-
+import com.delinger.antun.notesjava.Objects.user;
 import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -42,6 +42,7 @@ public class viewPartnerActivity extends AppCompatActivity {
     private partner partner;
     private car car;
     private payment payment;
+    private user user;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,6 +73,15 @@ public class viewPartnerActivity extends AppCompatActivity {
         addNewClaimButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                partner partnerTosend = new partner();
+                partnerTosend = (com.delinger.antun.notesjava.Objects.partner) getIntent().getSerializableExtra("partner");
+
+                Intent intent = new Intent(viewPartnerActivity.this, claimsActivity.class);
+                intent.putExtra("payment", payment);
+                intent.putExtra("partner", partnerTosend);
+                intent.putExtra("user", user);
+                intent.putExtra("car",  car);
+                startActivity(intent);
             }
         });
     }
@@ -133,6 +143,7 @@ public class viewPartnerActivity extends AppCompatActivity {
                     payment.dateList     .remove(i);
                     payment.claimList    .remove(i);
                     payment.debitList    .remove(i);
+                    payment.userIdList   .remove(i);
                     i=-1;
                 }
             }
@@ -197,6 +208,10 @@ public class viewPartnerActivity extends AppCompatActivity {
         payment.dateList      = new ArrayList<>();
         payment.debitList     = new ArrayList<>();
         payment.partnerIdList = new ArrayList<>();
+        payment.userIdList    = new ArrayList<>();
+
+        user = new user();
+        user = (com.delinger.antun.notesjava.Objects.user) getIntent().getSerializableExtra("user");
     }
 
 }
