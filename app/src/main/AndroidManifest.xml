@@ -23,6 +23,10 @@
         <activity
             android:name=".viewPartnerActivity"
             android:label="@string/title_activity_view_partner"
+            android:theme="@style/AppTheme" />
+        <activity
+            android:name=".claimsActivity"
+            android:label="@string/title_activity_claims"
             android:theme="@style/AppTheme"></activity>
     </application>
 

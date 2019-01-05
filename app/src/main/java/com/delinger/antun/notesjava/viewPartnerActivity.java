@@ -69,6 +69,11 @@ public class viewPartnerActivity extends AppCompatActivity {
                 goToAddNewCarFragment();
             }
         });
+        addNewClaimButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+            }
+        });
     }
 
     private void calculatePayments() {
