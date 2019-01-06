@@ -86,7 +86,6 @@ public class viewPartnerActivity extends AppCompatActivity {
     }
 
     private void calculatePayments() {
-
         for (int i=0; i<payment.debitList.size(); i++) {
             debitSum = debitSum + payment.debitList.get(i);
         }
@@ -95,13 +94,12 @@ public class viewPartnerActivity extends AppCompatActivity {
         }
         balance = claimSum - debitSum;
 
-        DecimalFormat df = new DecimalFormat("#.##");
+        DecimalFormat df = new DecimalFormat("#0.00");
         claimSum = Double.valueOf(df.format(claimSum));
 
-        debitSumTV.setText(" "+debitSum.toString()+ "kn");
-        claimSumTV.setText(" "+claimSum+ "kn");
-        balanceTV .setText(" "+balance.toString ()+ "kn");
-
+        debitSumTV.setText(" "+df.format(debitSum)+  " kn");
+        claimSumTV.setText(" "+df.format(claimSum) + " kn");
+        balanceTV .setText(" "+df.format(balance ) + " kn");
     }
 
     private void getCarsData() {

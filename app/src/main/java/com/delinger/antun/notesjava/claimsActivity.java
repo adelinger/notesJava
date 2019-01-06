@@ -47,7 +47,7 @@ public class claimsActivity extends AppCompatActivity {
     private void removeDebtsFromPayments() {
         try {
             for (int i=0; i<payment.idList.size(); i++){
-                if(!payment.debitList.get(i).equals(0) ){
+                if (payment.claimList.get(i).equals(0.00) ){
                     payment.idList       .remove(i);
                     payment.carIdList    .remove(i);
                     payment.partnerIdList.remove(i);

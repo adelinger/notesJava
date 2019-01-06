@@ -11,6 +11,7 @@ import com.delinger.antun.notesjava.Objects.user;
 import com.delinger.antun.notesjava.Objects.car;
 import com.delinger.antun.notesjava.R;
 
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
@@ -64,7 +65,7 @@ public class viewClaimsAdapter extends ArrayAdapter<String> {
 
     @Override
     public int getCount() {
-        return id.size();
+        return iznos.size();
     }
 
     @Override
@@ -116,10 +117,12 @@ public class viewClaimsAdapter extends ArrayAdapter<String> {
 
             datumText = datum.get(position);
 
+            DecimalFormat df = new DecimalFormat("#0.00");
+
             partnerTV.setText(korisnikText);
             voziloTV.setText (carText);
             datumTV.setText  (getDatum(datum.get(position)));
-            iznosTV.setText  (iznos.get(position).toString());
+            iznosTV.setText  (df.format(iznos.get(position)).toString());
             idTV.setText     (id.get(position).toString());
         }
 

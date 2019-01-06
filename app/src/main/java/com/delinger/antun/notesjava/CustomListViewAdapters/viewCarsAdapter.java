@@ -18,12 +18,16 @@ public class viewCarsAdapter extends ArrayAdapter<String>  {
     private payment payment;
     car car;
 
+    private Double sum;
+
     public viewCarsAdapter(Context context, car car, payment payment){
         super(context, R.layout.view_cars_adapter_layout);
 
         this.context = context;
         this.car = car;
         this.payment = payment;
+
+        sum = 0.00;
     }
 
     @Override
@@ -76,6 +80,7 @@ public class viewCarsAdapter extends ArrayAdapter<String>  {
                 }
             }
             balance = claim - debt;
+            sum = sum + balance;
             if(balance>=0)carstate.setText("Plaćeno");
             else carstate.setText("Nije plaćeno");
         }
