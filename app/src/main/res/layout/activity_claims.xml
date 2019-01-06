@@ -17,7 +17,7 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="?attr/colorPrimary"
-            app:title="Pregled uplata"
+            app:title="Pregled uplata korisnika"
             app:popupTheme="@style/AppTheme.PopupOverlay" />
 
     </android.support.design.widget.AppBarLayout>
@@ -72,7 +72,7 @@
             android:id="@+id/iznosUplateTV"
             android:layout_weight="2.5"
             android:gravity="center"
-            android:text="Iznos"
+            android:text="Iznos (€)"
             android:textColor="#000000" />
     </android.widget.LinearLayout>
 

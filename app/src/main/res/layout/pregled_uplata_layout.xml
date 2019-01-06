@@ -5,7 +5,7 @@
     android:layout_weight="10"
     >
     <TextView
-        android:layout_width="wrap_content"
+        android:layout_width="30dp"
         android:layout_height="wrap_content"
         android:id="@+id/partnerlistplace"
         android:text="text"
@@ -16,7 +16,7 @@
         android:textColor="#000000"
         />
     <TextView
-        android:layout_width="wrap_content"
+        android:layout_width="30dp"
         android:layout_height="wrap_content"
         android:id="@+id/vozilolistplace"
         android:text="text"
@@ -27,7 +27,7 @@
         android:textColor="#000000"
         />
     <TextView
-        android:layout_width="wrap_content"
+        android:layout_width="30dp"
         android:layout_height="wrap_content"
         android:id="@+id/datumlistplace"
         android:text="text"
@@ -38,7 +38,7 @@
         android:textColor="#000000"
         />
     <TextView
-        android:layout_width="wrap_content"
+        android:layout_width="30dp"
         android:layout_height="wrap_content"
         android:id="@+id/iznoslistplace"
         android:text="text"

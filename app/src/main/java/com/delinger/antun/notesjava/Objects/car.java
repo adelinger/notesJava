@@ -14,7 +14,6 @@ public class car implements Serializable {
     private String note;
 
 
-
     public List<String> nameList;
     public List<String> workRequiredList;
     public List<Integer> idList;

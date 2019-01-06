@@ -1,6 +1,7 @@
 package com.delinger.antun.notesjava.CustomListViewAdapters;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,18 +11,20 @@ import com.delinger.antun.notesjava.Objects.user;
 import com.delinger.antun.notesjava.Objects.car;
 import com.delinger.antun.notesjava.R;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.List;
 
-public class pregledUplataAdapter extends ArrayAdapter<String> {
+public class viewClaimsAdapter extends ArrayAdapter<String> {
     private final Context context;
     private car car;
     private List<Integer> korisnikID;
     private List<Integer>  vozilo;
     private List<String>  datum;
-    private List<Integer> iznos;
+    private List<Double> iznos;
     private List<Integer> id;
 
-    public pregledUplataAdapter(Context context, List<Integer> korisnikID, List<Integer> vozilo, car car, List<String> datum, List<Integer> iznos, List<Integer>id){
+    public viewClaimsAdapter(Context context, List<Integer> korisnikID, List<Integer> vozilo, car car, List<String> datum, List<Double> iznos, List<Integer>id){
         super(context, R.layout.pregled_uplata_layout);
 
         this.context    = context;
@@ -31,7 +34,34 @@ public class pregledUplataAdapter extends ArrayAdapter<String> {
         this.datum      = datum;
         this.iznos      = iznos;
         this.id         = id;
+
     }
+
+    private String getDatum(String datum) {
+        String returnDate = "";
+        Log.e("datum", datum);
+        try {
+            datum = datum.replaceAll("-", " ");
+            Log.e("datum", datum);
+
+            String year   = datum.substring(0, datum.indexOf(" ")).trim();
+            String month = datum.substring(4,7).trim();
+            String day  = datum.substring(8,11).trim();
+
+            Log.e("datum", day + " " + month + " " + year);
+
+            Calendar calendarInstance = Calendar.getInstance();
+            calendarInstance.set(Integer.parseInt(year),Integer.parseInt(month),Integer.parseInt(day));
+            Long timeInMillis = calendarInstance.getTimeInMillis();
+            returnDate = new SimpleDateFormat("dd-mm-YYYY").format(timeInMillis);
+
+        }
+        catch(Exception e) {
+            Log.e("exception", e.getMessage());
+        }
+        return returnDate;
+    }
+
     @Override
     public int getCount() {
         return id.size();
@@ -67,11 +97,12 @@ public class pregledUplataAdapter extends ArrayAdapter<String> {
             view = inflater.inflate(R.layout.pregled_uplata_layout, null, false);
             String korisnikText = "";
             String carText = "";
+            String datumText = "";
 
-            if(korisnikID.get(position)==0)korisnikText = "Admin";
-            if(korisnikID.get(position)==1)korisnikText ="Antun";
-            if(korisnikID.get(position)==2)korisnikText ="Mato";
-            else korisnikText = "Novi korisnik";
+            if(korisnikID.get(position).equals(0))korisnikText = "Admin";
+            if(korisnikID.get(position).equals(1))korisnikText ="Antun";
+            if(korisnikID.get(position).equals(2))korisnikText ="Mato";
+            if(!korisnikID.get(position).equals(0) && !korisnikID.get(position).equals(1) && !korisnikID.get(position).equals(2)) korisnikText = "Novi korisnik";
 
             TextView partnerTV = view.findViewById(R.id.partnerlistplace);
             TextView voziloTV  = view.findViewById(R.id.vozilolistplace);
@@ -80,16 +111,17 @@ public class pregledUplataAdapter extends ArrayAdapter<String> {
             TextView idTV      = view.findViewById(R.id.idlistplace);
 
             for(int i=0; i<car.idList.size(); i++){
-                if(car.idList.get(i) == vozilo.get(position)) carText = car.nameList.get(i);
+                if(car.idList.get(i).equals(vozilo.get(position))) carText = car.nameList.get(i);
             }
+
+            datumText = datum.get(position);
 
             partnerTV.setText(korisnikText);
             voziloTV.setText (carText);
-            datumTV.setText  (datum.get(position));
+            datumTV.setText  (getDatum(datum.get(position)));
             iznosTV.setText  (iznos.get(position).toString());
             idTV.setText     (id.get(position).toString());
         }
-
 
         return view;
 

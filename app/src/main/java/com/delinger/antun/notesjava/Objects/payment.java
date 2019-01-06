@@ -5,17 +5,17 @@ import java.util.List;
 
 public class payment implements Serializable {
     public List<Integer> idList;
-    public List<Integer> debitList;
-    public List<Integer> claimList;
+    public List<Double> debitList;
+    public List<Double> claimList;
     public List<String>  dateList;
     public List<Integer> partnerIdList;
     public List<Integer> carIdList;
     public List<Integer> userIdList;
 
     private Integer id;
-    private Integer debit;
-    private Integer claim;
-    private Integer date;
+    private Double debit;
+    private Double claim;
+    private String date;
     private Integer partnerID;
     private Integer carID;
     private Integer userID;
@@ -36,27 +36,27 @@ public class payment implements Serializable {
         this.id = id;
     }
 
-    public Integer getDebit() {
+    public Double getDebit() {
         return debit;
     }
 
-    public void setDebit(Integer debit) {
+    public void setDebit(Double debit) {
         this.debit = debit;
     }
 
-    public Integer getClaim() {
+    public Double getClaim() {
         return claim;
     }
 
-    public void setClaim(Integer claim) {
+    public void setClaim(Double claim) {
         this.claim = claim;
     }
 
-    public Integer getDate() {
+    public String getDate() {
         return date;
     }
 
-    public void setDate(Integer date) {
+    public void setDate(String date) {
         this.date = date;
     }
 

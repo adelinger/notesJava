@@ -150,8 +150,8 @@ public class MainActivity extends AppCompatActivity implements addNewPartnerFrag
                     for (int i = 0; i < jsonresponse.length(); i++) {
                         JSONObject  Jsonobject = jsonresponse.getJSONObject(i);
                         payment.idList.add(i,        Jsonobject.getInt("id"));
-                        payment.debitList.add(i,     Jsonobject.getInt("debit"));
-                        payment.claimList.add(i,     Jsonobject.getInt("claim"));
+                        payment.debitList.add(i,     Jsonobject.getDouble("debit"));
+                        payment.claimList.add(i,     Jsonobject.getDouble("claim"));
                         payment.dateList.add(i,      Jsonobject.getString("date"));
                         payment.partnerIdList.add(i, Jsonobject.getInt("partnerID"));
                         payment.carIdList.add(i,     Jsonobject.getInt("carID"));
