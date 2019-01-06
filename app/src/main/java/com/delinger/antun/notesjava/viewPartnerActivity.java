@@ -7,6 +7,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
+import com.delinger.antun.notesjava.CustomListViewAdapters.viewCarsAdapter;
 import com.delinger.antun.notesjava.Objects.car;
 import com.delinger.antun.notesjava.Objects.partner;
 import com.delinger.antun.notesjava.Objects.payment;
@@ -20,6 +21,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,9 +37,9 @@ public class viewPartnerActivity extends AppCompatActivity {
 
     private List emptyList;
     private Intent intent;
-    private Integer debitSum;
-    private Integer claimSum;
-    private Integer balance;
+    private Double debitSum;
+    private Double claimSum;
+    private Double balance;
 
     private partner partner;
     private car car;
@@ -73,12 +75,9 @@ public class viewPartnerActivity extends AppCompatActivity {
         addNewClaimButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                partner partnerTosend = new partner();
-                partnerTosend = (com.delinger.antun.notesjava.Objects.partner) getIntent().getSerializableExtra("partner");
-
                 Intent intent = new Intent(viewPartnerActivity.this, claimsActivity.class);
                 intent.putExtra("payment", payment);
-                intent.putExtra("partner", partnerTosend);
+                intent.putExtra("partner", partner);
                 intent.putExtra("user", user);
                 intent.putExtra("car",  car);
                 startActivity(intent);
@@ -96,8 +95,11 @@ public class viewPartnerActivity extends AppCompatActivity {
         }
         balance = claimSum - debitSum;
 
+        DecimalFormat df = new DecimalFormat("#.##");
+        claimSum = Double.valueOf(df.format(claimSum));
+
         debitSumTV.setText(" "+debitSum.toString()+ "kn");
-        claimSumTV.setText(" "+claimSum.toString()+ "kn");
+        claimSumTV.setText(" "+claimSum+ "kn");
         balanceTV .setText(" "+balance.toString ()+ "kn");
 
     }
@@ -160,7 +162,8 @@ public class viewPartnerActivity extends AppCompatActivity {
             carsListView.setAdapter(new ArrayAdapter<String>(viewPartnerActivity.this, android.R.layout.simple_list_item_1, emptyList));
         }
         else{
-            carsListView.setAdapter(new ArrayAdapter<String>(viewPartnerActivity.this, android.R.layout.simple_list_item_1, car.nameList));
+            viewCarsAdapter adapter = new viewCarsAdapter(viewPartnerActivity.this, car, payment);
+            carsListView.setAdapter(adapter);
         }
     }
 
@@ -183,9 +186,9 @@ public class viewPartnerActivity extends AppCompatActivity {
     }
 
     private void instantiateObjects() {
-        debitSum = 0;
-        claimSum = 0;
-        balance  = 0;
+        debitSum = 0.00;
+        claimSum = 0.00;
+        balance  = 0.00;
 
         partner  = new partner();
         intent   = new Intent();
@@ -213,5 +216,7 @@ public class viewPartnerActivity extends AppCompatActivity {
         user = new user();
         user = (com.delinger.antun.notesjava.Objects.user) getIntent().getSerializableExtra("user");
     }
+
+    //TODO napraviti custom list adapter za pregled vozila - placen ili neplacen auto oznaka
 
 }
