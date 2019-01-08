@@ -97,9 +97,9 @@ public class viewPartnerActivity extends AppCompatActivity {
         DecimalFormat df = new DecimalFormat("#0.00");
         claimSum = Double.valueOf(df.format(claimSum));
 
-        debitSumTV.setText(" "+df.format(debitSum)+  " kn");
-        claimSumTV.setText(" "+df.format(claimSum) + " kn");
-        balanceTV .setText(" "+df.format(balance ) + " kn");
+        debitSumTV.setText(" "+df.format(debitSum)+  " €");
+        claimSumTV.setText(" "+df.format(claimSum) + " €");
+        balanceTV .setText(" "+df.format(balance ) + " €");
     }
 
     private void getCarsData() {
