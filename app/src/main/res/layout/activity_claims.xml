@@ -78,7 +78,7 @@
 
     <ListView
         android:layout_width="match_parent"
-        android:layout_height="350dip"
+        android:layout_height="300dip"
         android:id="@+id/uplateListView"
         android:layout_below="@id/linearlayout"
         android:layout_marginTop="5dp">
@@ -96,6 +96,24 @@
         android:background="@color/colorPrimary"
         android:textColor="#FFFFFF"/>
 
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/uplateListView"
+        android:layout_marginTop="15dp"
+        android:layout_marginLeft="25dp"
+        android:text="Ukupno"
+        android:textColor="#000000"/>
+    <TextView
+        android:id="@+id/claimActivitySum"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/uplateListView"
+        android:layout_alignRight="@id/uplateListView"
+        android:layout_marginRight="25dp"
+        android:text="0 €"
+        android:textColor="#000000"/>
 
 
 </android.widget.RelativeLayout>

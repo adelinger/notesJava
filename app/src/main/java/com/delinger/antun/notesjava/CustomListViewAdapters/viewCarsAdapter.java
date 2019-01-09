@@ -19,6 +19,7 @@ public class viewCarsAdapter extends ArrayAdapter<String>  {
     car car;
 
     private Double sum;
+    private Double claimSum;
 
     public viewCarsAdapter(Context context, car car, payment payment){
         super(context, R.layout.view_cars_adapter_layout);
@@ -27,7 +28,16 @@ public class viewCarsAdapter extends ArrayAdapter<String>  {
         this.car = car;
         this.payment = payment;
 
-        sum = 0.00;
+        sum      = 0.00;
+        claimSum = 0.00;
+
+        getClaimSum();
+    }
+
+    private void getClaimSum() {
+        for(int i=0; i<payment.debitList.size(); i++){
+            claimSum = claimSum + payment.claimList.get(i);
+        }
     }
 
     @Override
@@ -70,20 +80,30 @@ public class viewCarsAdapter extends ArrayAdapter<String>  {
 
             carname.setText(car.nameList.get(position));
 
-            Double debt    = 0.00;
-            Double claim   = 0.00;
-            Double balance = 0.00;
+            //set debts closed by specific claim
+            Double debt     = 0.00;
+            Double claim    = 0.00;
+            Double balance  = 0.00;
             for(int i=0; i<payment.debitList.size(); i++){
                 if(payment.carIdList.get(i).equals(car.idList.get(position)) ){
                     debt = debt + payment.debitList.get(i);
                     claim = claim + payment.claimList.get(i);
                 }
+
             }
-            balance = claim - debt;
+            balance  = claim - debt;
+            claimSum = claimSum - debt;
             sum = sum + balance;
             if(balance>=0)carstate.setText("Plaćeno");
-            else carstate.setText("Nije plaćeno");
+            else{
+                if (claimSum>0 && claimSum > debt) {
+                    claimSum = claimSum - debt;
+                    carstate.setText("Plaćeno");
+                } else carstate.setText("Nije plaćeno");
+            }
         }
+
+        //TODO fix this shit with claims tofix
 
         return view;
 

@@ -14,16 +14,20 @@ import com.delinger.antun.notesjava.Objects.payment;
 import com.delinger.antun.notesjava.Objects.user;
 import com.delinger.antun.notesjava.Objects.car;
 
+import java.text.DecimalFormat;
+
 public class claimsActivity extends AppCompatActivity {
     private TextView partnerTV;
     private TextView voziloTV;
     private TextView datumTV;
     private TextView iznosTV;
     private TextView idTV;
+    private TextView sumTV;
     private Button   addNewClaim;
     private ListView paymentsListView;
 
     private Toolbar toolbar;
+    private Double  sum;
 
     private payment payment;
     private partner partner;
@@ -38,10 +42,21 @@ public class claimsActivity extends AppCompatActivity {
         paymentsListView = findViewById(R.id.uplateListView);
         addNewClaim      = findViewById(R.id.addNewClaimNewButton);
         toolbar          = findViewById(R.id.toolbar);
+        sumTV            = findViewById(R.id.claimActivitySum);
 
         instantiateObjects();
         removeDebtsFromPayments();
         fillListView();
+        getSum();
+    }
+
+    private void getSum() {
+        for (int i=0; i<payment.claimList.size(); i++) {
+            sum = sum + payment.claimList.get(i);
+        }
+
+        DecimalFormat df = new DecimalFormat("#0.00");
+        sumTV.setText(df.format(sum)+ " €");
     }
 
     private void removeDebtsFromPayments() {
@@ -79,6 +94,7 @@ public class claimsActivity extends AppCompatActivity {
         car     = (com.delinger.antun.notesjava.Objects.car)     getIntent().getSerializableExtra("car");
 
         toolbar.setTitle("Pregled uplata partnera "+partner.getFirstname() + " " + partner.getLastName());
+        sum = 0.00;
     }
 
     //TODO finish listview adapter (car names) tofix
