@@ -1,6 +1,7 @@
 package com.delinger.antun.notesjava.CustomListViewAdapters;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,6 +39,7 @@ public class viewCarsAdapter extends ArrayAdapter<String>  {
         for(int i=0; i<payment.debitList.size(); i++){
             claimSum = claimSum + payment.claimList.get(i);
         }
+
     }
 
     @Override
@@ -92,13 +94,17 @@ public class viewCarsAdapter extends ArrayAdapter<String>  {
 
             }
             balance  = claim - debt;
-            claimSum = claimSum - debt;
             sum = sum + balance;
-            if(balance>=0)carstate.setText("Plaćeno");
+            
+            if(balance>=0){
+                carstate.setText("Plaćeno");
+                claimSum = claimSum - debt;
+            }
             else{
                 if (claimSum>0 && claimSum > debt) {
                     claimSum = claimSum - debt;
                     carstate.setText("Plaćeno");
+                    Log.e("claimSum2",claimSum.toString());
                 } else carstate.setText("Nije plaćeno");
             }
         }
