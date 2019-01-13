@@ -63,7 +63,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_marginTop="10dip"
-        android:background="#4ebaaa"
+        android:background="@color/colorPrimaryLight"
         android:textColor="#FFFFFF"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"

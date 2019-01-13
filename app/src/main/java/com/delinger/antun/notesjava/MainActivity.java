@@ -16,17 +16,15 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.toolbox.Volley;
-import com.delinger.antun.notesjava.DatabaseConnections.add_car;
 import com.delinger.antun.notesjava.DatabaseConnections.get_cars;
 import com.delinger.antun.notesjava.DatabaseConnections.get_transactions;
 import com.delinger.antun.notesjava.DatabaseConnections.partnerDataClass;
 import com.delinger.antun.notesjava.HelperClasses.connection;
-import com.delinger.antun.notesjava.addNewPartnerFragment;
+import com.delinger.antun.notesjava.Fragments.addNewPartnerFragment;
 import com.delinger.antun.notesjava.HelperClasses.customListPartnersAdapter;
 import com.delinger.antun.notesjava.HelperClasses.userLocalStorage;
 import com.delinger.antun.notesjava.Objects.partner;
@@ -279,7 +277,7 @@ public class MainActivity extends AppCompatActivity implements addNewPartnerFrag
 
     private void startProgressDialog(){
         progressDialog = new ProgressDialog(MainActivity.this);
-        progressDialog.setTitle("Prijava...");
+        progressDialog.setTitle("Učitavanje...");
         progressDialog.setMessage("Pričekajte...");
         progressDialog.show();
     }

@@ -1,14 +1,21 @@
 package com.delinger.antun.notesjava;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import com.delinger.antun.notesjava.CustomListViewAdapters.viewClaimsAdapter;
+import com.delinger.antun.notesjava.Fragments.calendarFragment;
+import com.delinger.antun.notesjava.Fragments.updatePaymentFragment;
 import com.delinger.antun.notesjava.Objects.partner;
 import com.delinger.antun.notesjava.Objects.payment;
 import com.delinger.antun.notesjava.Objects.user;
@@ -16,7 +23,7 @@ import com.delinger.antun.notesjava.Objects.car;
 
 import java.text.DecimalFormat;
 
-public class claimsActivity extends AppCompatActivity {
+public class claimsActivity extends AppCompatActivity implements calendarFragment.Datum{
     private TextView partnerTV;
     private TextView voziloTV;
     private TextView datumTV;
@@ -29,6 +36,7 @@ public class claimsActivity extends AppCompatActivity {
     private Toolbar toolbar;
     private Double  sum;
 
+    private updatePaymentFragment updatePayment;
     private payment payment;
     private partner partner;
     private user user;
@@ -48,6 +56,52 @@ public class claimsActivity extends AppCompatActivity {
         removeDebtsFromPayments();
         fillListView();
         getSum();
+
+      paymentsListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+          @Override
+          public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
+              performOnItemLongClickAction(i);
+              return true;
+          }
+      });
+    }
+
+    private void performOnItemLongClickAction(final Integer i) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(claimsActivity.this);
+        builder.setPositiveButton("Izmijeni unos", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface builder, int which) {
+
+                Bundle bundle = new Bundle();
+                bundle.putSerializable("car", car);
+                bundle.putInt         ("carPosition", getCarPosition(payment.carIdList.get(i)));
+                bundle.putInt         ("id", payment.idList.get(i));
+                bundle.putDouble      ("claim",payment.claimList.get(i));
+                bundle.putString      ("date", getDatum(payment.dateList.get(i)));
+                bundle.putInt         ("position", i);
+                updatePayment.setArguments(bundle);
+
+                updatePayment.show(getFragmentManager().beginTransaction(), "update");
+            }
+
+        });
+        builder.setNeutralButton("Obriši unos", new DialogInterface.OnClickListener(){
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+
+            }
+        });
+        builder.create();
+        builder.setCancelable(true);
+        builder.show();
+    }
+
+    private Integer getCarPosition(Integer carID) {
+        Integer position = 0;
+        for (int i = 0; i<car.idList.size(); i++){
+            if(carID.equals(car.idList.get(i)))position = i;
+        }
+        return position;
     }
 
     private void getSum() {
@@ -95,7 +149,35 @@ public class claimsActivity extends AppCompatActivity {
 
         toolbar.setTitle("Pregled uplata partnera "+partner.getFirstname() + " " + partner.getLastName());
         sum = 0.00;
+
+        updatePayment = new updatePaymentFragment();
     }
 
-    //TODO finish listview adapter (car names) tofix
+    private String getDatum(String datum) {
+        String returnDate = "";
+        Log.e("datum", datum);
+        try {
+            datum = datum.replaceAll("-", " ");
+
+            String year   = datum.substring(0, datum.indexOf(" ")).trim();
+            String month = datum.substring(4,7).trim();
+            String day  = datum.substring(8,11).trim();
+
+            returnDate = day + "-" + month + "-" + year;
+
+        }
+        catch(Exception e) {
+            Log.e("exception", e.getMessage());
+        }
+        return returnDate;
+    }
+
+    @Override
+    public void datePicked(String datum) {
+        Bundle args = new Bundle();
+        args.putString("newDate", datum);
+        updatePayment.Args(args);
+
+    }
+
 }

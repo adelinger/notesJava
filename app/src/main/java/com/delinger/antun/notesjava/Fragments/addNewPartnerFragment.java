@@ -1,15 +1,10 @@
-package com.delinger.antun.notesjava;
+package com.delinger.antun.notesjava.Fragments;
 
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DialogFragment;
-import android.content.Context;
 import android.content.DialogInterface;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.nfc.Tag;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -29,12 +24,11 @@ import com.delinger.antun.notesjava.HelperClasses.connection;
 import com.delinger.antun.notesjava.HelperClasses.ProgressDialogWait;
 import com.delinger.antun.notesjava.Objects.partner;
 import com.delinger.antun.notesjava.Objects.user;
+import com.delinger.antun.notesjava.R;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.sql.Connection;
 
 public class addNewPartnerFragment extends DialogFragment {
     View view;
@@ -43,17 +37,17 @@ public class addNewPartnerFragment extends DialogFragment {
     private TextView partnerLastnameTV;
     private TextView partnerEmailTV;
     private TextView partnerPhoneTV;
-    private Button addPartnerButton;
+    private Button   addPartnerButton;
 
     ProgressDialogWait progressDialog;
-    connection connection;
-    partnerOptions partnerOptions;
+    connection         connection;
+    partnerOptions     partnerOptions;
 
-    private user user;
+    private user    user;
     private partner partner;
 
     private Integer save_result;
-    private String tag;
+    private String  tag;
     private Boolean insert;
     private Boolean update;
     private Boolean delete;
@@ -205,7 +199,7 @@ public class addNewPartnerFragment extends DialogFragment {
             delete = false;
         }
        if(tag == "update") {
-            addPartnerButton.setText("Izmijeni partnera");
+            addPartnerButton.setText("Spremi");
             update = true;
             insert = false;
             delete = false;

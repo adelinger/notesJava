@@ -28,6 +28,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/appBarLayout"
         android:layout_marginTop="10dp"
+        android:layout_marginLeft="5dp"
         android:textSize="20sp"
         android:textColor="#000000"
         android:text="Ukupno duguje:" />
@@ -37,6 +38,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/debitSumTextView"
         android:layout_marginTop="10dp"
+        android:layout_marginLeft="5dp"
         android:textSize="20sp"
         android:textColor="#000000"
         android:text="Ukupno potražuje:" />
@@ -46,6 +48,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/claimSumTextView"
         android:layout_marginTop="10dp"
+        android:layout_marginLeft="5dp"
         android:textSize="20sp"
         android:textColor="#000000"
         android:text="Saldo:" />
@@ -86,6 +89,7 @@
         android:id="@+id/vozilaPartneraTexView"
         android:layout_below="@id/balanceTextView"
         android:layout_marginTop="15dp"
+        android:layout_marginLeft="5dp"
         android:textSize="20sp"
         android:textColor="#000000"
         android:text="Vozila partnera:"
@@ -131,31 +135,46 @@
         android:layout_below="@id/linearLayoutVP"
         android:layout_marginTop="5dp"
         />
-    <Button
-        android:layout_width="wrap_content"
+
+    <RelativeLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/addCarsButton"
         android:layout_below="@id/carsListView"
-        android:paddingLeft="5dp"
-        android:paddingRight="5dp"
-        android:layout_marginTop="5dp"
-        android:layout_centerHorizontal="true"
-        android:text="Dodaj novo vozilo"
-        android:textColor="#FFFFFF"
-        android:background="@color/colorPrimary"/>
+        android:layout_above="@id/addNewClaim"
+        android:id="@+id/view"
+       >
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/addCarsButton"
+            android:layout_centerInParent="true"
+            android:paddingRight="5dp"
+            android:paddingLeft="5dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:text="Dodaj novo vozilo"
+            android:textColor="#FFFFFF"
+            android:background="@drawable/rounded_button"
+            android:backgroundTint="@color/colorPrimaryLight"/>
+    </RelativeLayout>
+
+
+
+
     <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/addNewClaim"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="10dp"
-        android:layout_marginLeft="5dp"
-        android:layout_marginRight="5dp"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp"
         android:layout_alignParentBottom="true"
         android:layout_marginBottom="5dp"
         android:text="Uplate"
         android:textColor="#FFFFFF"
-        android:background="@color/colorPrimary"
+        android:background="@drawable/rounded_button"
+        android:backgroundTint="@color/colorPrimaryLight"
         />
 
 

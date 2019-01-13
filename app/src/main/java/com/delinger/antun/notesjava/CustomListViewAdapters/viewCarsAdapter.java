@@ -95,7 +95,7 @@ public class viewCarsAdapter extends ArrayAdapter<String>  {
             }
             balance  = claim - debt;
             sum = sum + balance;
-            
+
             if(balance>=0){
                 carstate.setText("Plaćeno");
                 claimSum = claimSum - debt;
@@ -108,8 +108,6 @@ public class viewCarsAdapter extends ArrayAdapter<String>  {
                 } else carstate.setText("Nije plaćeno");
             }
         }
-
-        //TODO fix this shit with claims tofix
 
         return view;
 

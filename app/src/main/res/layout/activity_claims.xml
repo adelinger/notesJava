@@ -78,7 +78,7 @@
 
     <ListView
         android:layout_width="match_parent"
-        android:layout_height="300dip"
+        android:layout_height="150dp"
         android:id="@+id/uplateListView"
         android:layout_below="@id/linearlayout"
         android:layout_marginTop="5dp">
@@ -93,7 +93,8 @@
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="5dip"
-        android:background="@color/colorPrimary"
+        android:background="@drawable/rounded_button"
+        android:backgroundTint="@color/colorPrimaryLight"
         android:textColor="#FFFFFF"/>
 
     <TextView
@@ -101,8 +102,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/uplateListView"
-        android:layout_marginTop="15dp"
-        android:layout_marginLeft="25dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="10dp"
+        android:textSize="10pt"
         android:text="Ukupno"
         android:textColor="#000000"/>
     <TextView
@@ -112,6 +114,8 @@
         android:layout_below="@id/uplateListView"
         android:layout_alignRight="@id/uplateListView"
         android:layout_marginRight="25dp"
+        android:layout_marginTop="10dp"
+        android:textSize="10pt"
         android:text="0 €"
         android:textColor="#000000"/>
 

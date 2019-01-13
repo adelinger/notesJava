@@ -1,4 +1,4 @@
-package com.delinger.antun.notesjava;
+package com.delinger.antun.notesjava.Fragments;
 
 import android.app.AlertDialog;
 import android.app.DialogFragment;
@@ -22,6 +22,7 @@ import com.delinger.antun.notesjava.DatabaseConnections.insertPartner;
 import com.delinger.antun.notesjava.HelperClasses.ProgressDialogWait;
 import com.delinger.antun.notesjava.Objects.car;
 import com.delinger.antun.notesjava.Objects.partner;
+import com.delinger.antun.notesjava.R;
 
 import org.json.JSONArray;
 import org.json.JSONException;

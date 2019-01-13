@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.widget.LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <CalendarView
+        android:id="@+id/calendarViewAdmin"
+        android:layout_width="350dip"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
+        android:layout_marginTop="25dp"
+        android:layout_marginBottom="5dp"
+        android:firstDayOfWeek="2"
+        />
+    <Button
+        android:id="@+id/calendarSaveButton"
+        android:layout_width="170dip"
+        android:layout_height="wrap_content"
+        android:text="U redu"
+        android:textColor="#FFFFFF"
+        android:background="@drawable/rounded_button"
+        android:backgroundTint="@color/colorPrimaryLight"
+        android:layout_gravity="center"
+        android:layout_marginTop="10dip"
+        android:layout_marginBottom="10dp"
+        android:paddingRight="10dp"
+        android:drawableRight="@drawable/ok_iconn"
+        />
+
+</android.widget.LinearLayout>

@@ -43,18 +43,12 @@ public class viewClaimsAdapter extends ArrayAdapter<String> {
         Log.e("datum", datum);
         try {
             datum = datum.replaceAll("-", " ");
-            Log.e("datum", datum);
 
             String year   = datum.substring(0, datum.indexOf(" ")).trim();
             String month = datum.substring(4,7).trim();
             String day  = datum.substring(8,11).trim();
 
-            Log.e("datum", day + " " + month + " " + year);
-
-            Calendar calendarInstance = Calendar.getInstance();
-            calendarInstance.set(Integer.parseInt(year),Integer.parseInt(month),Integer.parseInt(day));
-            Long timeInMillis = calendarInstance.getTimeInMillis();
-            returnDate = new SimpleDateFormat("dd-mm-YYYY").format(timeInMillis);
+            returnDate = day + "-" + month + "-" + year;
 
         }
         catch(Exception e) {
