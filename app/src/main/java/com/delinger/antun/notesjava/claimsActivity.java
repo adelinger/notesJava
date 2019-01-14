@@ -155,7 +155,6 @@ public class claimsActivity extends AppCompatActivity implements calendarFragmen
 
     private String getDatum(String datum) {
         String returnDate = "";
-        Log.e("datum", datum);
         try {
             datum = datum.replaceAll("-", " ");
 

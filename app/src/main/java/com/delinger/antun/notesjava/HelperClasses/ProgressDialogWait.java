@@ -15,7 +15,7 @@ public class ProgressDialogWait {
     }
 
     public void start() {
-        progressDialog.setTitle("Prijava...");
+        progressDialog.setTitle("Učitavanje...");
         progressDialog.setMessage("Pričekajte...");
         progressDialog.show();
     }

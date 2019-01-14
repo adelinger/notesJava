@@ -22,7 +22,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-public class viewPartnerActivity extends AppCompatActivity {
+public class viewPartnerActivity extends AppCompatActivity implements addNewCarFragment.onCarAdded{
 
     private TextView debitSumTV;
     private TextView claimSumTV;
@@ -40,6 +40,7 @@ public class viewPartnerActivity extends AppCompatActivity {
 
     private partner partner;
     private car car;
+    private car newCar;
     private payment payment;
     private user user;
 
@@ -151,7 +152,6 @@ public class viewPartnerActivity extends AppCompatActivity {
     }
 
     private void setListView() {
-
         if(car.nameList.size() == 0){
             String[] emptyList =  {"Niste dodali niti jedno vozilo za ovog partnera"};
             carsListView.setAdapter(new ArrayAdapter<String>(viewPartnerActivity.this, android.R.layout.simple_list_item_1, emptyList));
@@ -212,6 +212,24 @@ public class viewPartnerActivity extends AppCompatActivity {
         user = (com.delinger.antun.notesjava.Objects.user) getIntent().getSerializableExtra("user");
     }
 
-    //TODO napraviti custom list adapter za pregled vozila - placen ili neplacen auto oznaka
 
+    @Override
+    public void onComplete(com.delinger.antun.notesjava.Objects.car car) {
+        newCar = new car();
+        newCar = car;
+
+        resetListView();
+    }
+
+    private void resetListView() {
+        carsListView.setAdapter(null);
+        if(newCar.nameList.size() == 0){
+            String[] emptyList =  {"Dogodila se greška."};
+            carsListView.setAdapter(new ArrayAdapter<String>(viewPartnerActivity.this, android.R.layout.simple_list_item_1, emptyList));
+        }
+        else{
+            viewCarsAdapter adapter = new viewCarsAdapter(viewPartnerActivity.this, newCar, payment);
+            carsListView.setAdapter(adapter);
+        }
+    }
 }

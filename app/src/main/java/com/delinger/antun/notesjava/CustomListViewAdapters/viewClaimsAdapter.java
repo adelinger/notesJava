@@ -40,7 +40,6 @@ public class viewClaimsAdapter extends ArrayAdapter<String> {
 
     private String getDatum(String datum) {
         String returnDate = "";
-        Log.e("datum", datum);
         try {
             datum = datum.replaceAll("-", " ");
 

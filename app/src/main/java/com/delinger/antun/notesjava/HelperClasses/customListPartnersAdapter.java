@@ -74,7 +74,6 @@ public class customListPartnersAdapter extends ArrayAdapter<String> {
                 lastnameTV.setText(lastname.get(position).trim());
                 idTV.setText(id.get(position).toString().trim());
 
-                Log.e("id", id.get(position).toString());
             } catch (Exception e) {
                 Log.e("shit", e.getMessage());
             }

@@ -1,5 +1,6 @@
 package com.delinger.antun.notesjava.Fragments;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DialogFragment;
 import android.content.DialogInterface;
@@ -18,6 +19,7 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.toolbox.Volley;
 import com.delinger.antun.notesjava.DatabaseConnections.add_car;
+import com.delinger.antun.notesjava.DatabaseConnections.get_cars_for_user;
 import com.delinger.antun.notesjava.DatabaseConnections.insertPartner;
 import com.delinger.antun.notesjava.HelperClasses.ProgressDialogWait;
 import com.delinger.antun.notesjava.Objects.car;
@@ -48,7 +50,24 @@ public class addNewCarFragment extends DialogFragment {
 
     private partner partner;
     private car car;
+    private car newCar;
     private ProgressDialogWait progressDialog;
+    private onCarAdded listener;
+
+    public interface onCarAdded {
+        public void onComplete(car car);
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        try {
+            this.listener = (addNewCarFragment.onCarAdded) activity;
+        }
+        catch (final ClassCastException e) {
+            throw new ClassCastException(activity.toString() + " must implement OnCompleteListener");
+        }
+    }
 
     @Nullable
     @Override
@@ -78,7 +97,6 @@ public class addNewCarFragment extends DialogFragment {
         Response.Listener<String> listener = new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
-                progressDialog.dismis();
                 try {
                     JSONArray jsonresponse = new JSONArray(response);
                     for(int i=0;i<jsonresponse.length();i++)
@@ -88,7 +106,7 @@ public class addNewCarFragment extends DialogFragment {
                         save_result =  Jasonobject.getInt("rezultat");
 
                         if(save_result == 0) throwNotSuccessfulMessage("Neuspješno dodavanje vozila.");
-                        if(save_result == 1) closeDialog("Vozilo uspješno spremljeno");
+                        if(save_result == 1) getNewCar();
                     }
 
                 } catch (JSONException e) {
@@ -100,6 +118,44 @@ public class addNewCarFragment extends DialogFragment {
         add_car addCar = new add_car(car.getName(), car.getWorkRequired(),car.getReceiptDate(), car.getDispatchDate(), partner.getId(), listener);
         RequestQueue queue = Volley.newRequestQueue(getDialog().getContext());
         queue.add(addCar);
+    }
+
+    private void getNewCar() {
+        Response.Listener<String> listener = new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                progressDialog.dismis();
+
+                try {
+                    JSONArray jsonresponse = new JSONArray(response);
+                    for(int i=0;i<jsonresponse.length();i++)
+                    {
+                        JSONObject Jasonobject = null;
+                        Jasonobject = jsonresponse.getJSONObject(i);
+                        JSONObject  Jsonobject = jsonresponse.getJSONObject(i);
+
+                        newCar.nameList.        add(i, Jsonobject.getString("name"));
+                        newCar.workRequiredList.add(i, Jsonobject.getString("requiredWork"));
+                        newCar.receiptDateList. add(i, Jsonobject.getString("receiptdate"));
+                        newCar.dispatchDateList.add(i, Jsonobject.getString("dispatchdate"));
+                        newCar.idList.          add(i, Jsonobject.getInt("id"));
+                        newCar.partnerIDList.   add(i, Jsonobject.getInt("partnerID"));
+                        newCar.noteList.        add(i, Jsonobject.getString("note"));
+
+                    }
+
+                    if(newCar.idList.size() != 0) closeDialog("Vozilo uspješno spremljeno");
+                    else throwNotSuccessfulMessage("Dogodila se greška.");
+
+                } catch (JSONException e) {
+                    Log.e("shit", e.getMessage());
+                }
+            }
+        };
+
+        get_cars_for_user getCar = new get_cars_for_user(listener, partner.getId());
+        RequestQueue queue = Volley.newRequestQueue(getDialog().getContext());
+        queue.add(getCar);
     }
 
     private void throwNotSuccessfulMessage(String noSuccessMessage) {
@@ -129,6 +185,7 @@ public class addNewCarFragment extends DialogFragment {
         builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface builder, int which) {
+                listener.onComplete(newCar);
                 builder.dismiss();
                 getDialog().dismiss();
             }
@@ -149,7 +206,16 @@ public class addNewCarFragment extends DialogFragment {
     }
 
     private void instantiateObjects() {
-        car            = new car();
+        car                  = new car();
+        newCar               = new car();
+        newCar.noteList         = new ArrayList<>();
+        newCar.idList           = new ArrayList<>();
+        newCar.partnerIDList    = new ArrayList<>();
+        newCar.dispatchDateList = new ArrayList<>();
+        newCar.receiptDateList  = new ArrayList<>();
+        newCar.nameList         = new ArrayList<>();
+        newCar.workRequiredList = new ArrayList<>();
+
         progressDialog = new ProgressDialogWait(getDialog().getContext());
         partner        = new partner();
         partner.setId(getArguments().getInt("partnerID", 0));
