@@ -83,6 +83,16 @@ public class viewPartnerActivity extends AppCompatActivity implements addNewCarF
         });
     }
 
+    @Override
+    public void onBackPressed() {
+        Intent intent = new Intent();
+        if(newCar != null) intent.putExtra("car", newCar);
+        else intent.putExtra("car", car);
+        setResult(RESULT_OK, intent);
+        finish();
+        super.onBackPressed();
+    }
+
     private void calculatePayments() {
         for (int i=0; i<payment.debitList.size(); i++) {
             debitSum = debitSum + payment.debitList.get(i);

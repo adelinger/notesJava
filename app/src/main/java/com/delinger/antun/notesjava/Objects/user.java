@@ -7,6 +7,15 @@ public class user implements Serializable {
     public String firstname;
     public String lastname;
     public String password;
+    public Integer id;
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
 
     public String getUsername() {
         return username;

@@ -1,10 +1,14 @@
 package com.delinger.antun.notesjava.Fragments;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.DialogFragment;
 import android.app.FragmentManager;
+import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.sip.SipSession;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -17,6 +21,14 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
+
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.toolbox.Volley;
+import com.delinger.antun.notesjava.DatabaseConnections.get_transactions;
+import com.delinger.antun.notesjava.DatabaseConnections.update_payment;
+import com.delinger.antun.notesjava.HelperClasses.ProgressDialogWait;
+import com.delinger.antun.notesjava.MainActivity;
 import com.delinger.antun.notesjava.Objects.partner;
 import com.delinger.antun.notesjava.Objects.payment;
 import com.delinger.antun.notesjava.Objects.user;
@@ -25,7 +37,13 @@ import com.delinger.antun.notesjava.Objects.car;
 import com.delinger.antun.notesjava.R;
 import com.delinger.antun.notesjava.claimsActivity;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.text.DateFormat;
 import java.text.DecimalFormat;
+import java.util.Calendar;
 
 public class updatePaymentFragment extends DialogFragment {
     private View     view;
@@ -36,23 +54,30 @@ public class updatePaymentFragment extends DialogFragment {
 
     private payment payment;
     private car car;
+    private user user;
+    private partner partner;
     private calendarFragment calendar;
+    ProgressDialogWait progressDialog;
 
     private Integer id;
     private Integer position;
     private Integer carPosition;
     private String datum;
+    private OnUpdateComplete listener;
 
-    @Override
-    public void onResume() {
-        Log.e("resume", "resume");
-        super.onResume();
+    public interface OnUpdateComplete {
+        public void updateComplete(payment payment);
     }
 
     @Override
-    public void onStart() {
-        Log.e("start", "start");
-        super.onStart();
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        try {
+            this.listener = (OnUpdateComplete) activity;
+        }
+        catch (final ClassCastException e) {
+            throw new ClassCastException(activity.toString() + " must implement OnCompleteListener");
+        }
     }
 
     @Nullable
@@ -68,11 +93,46 @@ public class updatePaymentFragment extends DialogFragment {
         instantiateObjects();
         loadSpinner();
 
+        saveButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Response.Listener<String> listener = new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        progressDialog.dismis();
+                        int save_result = 0;
+
+                        try {
+                            JSONArray jsonresponse = new JSONArray(response);
+                            for(int i=0;i<jsonresponse.length();i++)
+                            {
+                                JSONObject Jasonobject = null;
+                                Jasonobject = jsonresponse.getJSONObject(i);
+                                save_result =  Jasonobject.getInt("rezultat");
+
+                                if(save_result == 0) throwNotSuccessfulMessage("Neuspješno. Pokušajte ponovno");
+                                if(save_result == 1) getPaymentData();
+                            }
+
+                        } catch (JSONException e) {
+                            Log.e("shit", e.getMessage());
+                        }
+                    }
+                };
+
+                progressDialog.start();
+                payment.setClaim(Double.parseDouble(claimET.getText().toString()));
+                update_payment update_payment = new update_payment(payment.getClaim(),dateET.getText().toString(), payment.getPartnerID(), getCarIdByPosition(), user.getId(), payment.getId(), listener);
+                RequestQueue queue = Volley.newRequestQueue(getDialog().getContext());
+                queue.add(update_payment);
+            }
+        });
+
         dateET.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 getDialog().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
-
+                claimET.clearFocus();
                Bundle bundle = new Bundle();
                bundle.putString("previousDate", dateET.getText().toString());
                calendar.setArguments(bundle);
@@ -83,6 +143,83 @@ public class updatePaymentFragment extends DialogFragment {
         return view;
     }
 
+    private void getPaymentData(){
+        Response.Listener<String> listener = new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                progressDialog.dismis();
+                try {
+                    JSONArray jsonresponse = new JSONArray(response);
+                    for (int i = 0; i < jsonresponse.length(); i++) {
+                        JSONObject  Jsonobject = jsonresponse.getJSONObject(i);
+                        payment.idList.add(i,        Jsonobject.getInt("id"));
+                        payment.debitList.add(i,     Jsonobject.getDouble("debit"));
+                        payment.claimList.add(i,     Jsonobject.getDouble("claim"));
+                        payment.dateList.add(i,      Jsonobject.getString("date"));
+                        payment.partnerIdList.add(i, Jsonobject.getInt("partnerID"));
+                        payment.carIdList.add(i,     Jsonobject.getInt("carID"));
+                        payment.userIdList.add(i,    Jsonobject.getInt("userID"));
+                    }
+                } catch (JSONException e) {
+                    Log.e("shit", e.getMessage());
+                }
+
+                closeDialog("Spremanje uspješno.");
+            }
+        };
+
+        get_transactions get_transactions = new get_transactions(listener);
+        RequestQueue queue = Volley.newRequestQueue(getDialog().getContext());
+        queue.add(get_transactions);
+    }
+
+    private Integer getCarIdByPosition() {
+        String carName = carSpinner.getSelectedItem().toString();
+        int carID = 0;
+
+        for (int i=0; i<car.idList.size(); i++){
+            if(carName.equals(car.nameList.get(i))) carID = car.idList.get(i);
+        }
+        return carID;
+    }
+
+    private void closeDialog(String message) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getDialog().getContext());
+        builder.setMessage(message);
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface builder, int which) {
+                listener.updateComplete(payment);
+                builder.dismiss();
+                getDialog().dismiss();
+            }
+        });
+        builder.create();
+        builder.setCancelable(false);
+        builder.show();
+    }
+
+    private void throwNotSuccessfulMessage(String notSuccessfullMessage) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getDialog().getContext());
+        builder.setMessage(notSuccessfullMessage);
+        builder.setPositiveButton("Pokušaj ponovno", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface builder, int which) {
+                return;
+            }
+
+        });
+        builder.setNegativeButton("Izlaz", new DialogInterface.OnClickListener(){
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                getDialog().dismiss();
+            }
+        });
+        builder.create();
+        builder.setCancelable(false);
+        builder.show();
+    }
+
     private void loadSpinner() {
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(getDialog().getContext(), android.R.layout.simple_list_item_1, car.nameList);
         carSpinner.setAdapter(adapter);
@@ -90,14 +227,18 @@ public class updatePaymentFragment extends DialogFragment {
     }
 
     private void instantiateObjects() {
-        payment payment = new payment();
-        car = (com.delinger.antun.notesjava.Objects.car) getArguments().getSerializable("car");
+        payment = (com.delinger.antun.notesjava.Objects.payment) getArguments().getSerializable("payment");
+        car     = (com.delinger.antun.notesjava.Objects.car) getArguments().getSerializable    ("car");
+        user    = (com.delinger.antun.notesjava.Objects.user) getArguments().getSerializable   ("user");
+        partner = (com.delinger.antun.notesjava.Objects.partner) getArguments().getSerializable("partner");
 
-        payment.setClaim(getArguments   ().getDouble("claim"));
-        payment.setId(getArguments      ().getInt("id"));
-        payment.setDate(getArguments    ().getString("date"));
-        position    = getArguments      ().getInt("position");
-        carPosition = getArguments      ().getInt("carPosition");
+        payment.setClaim(getArguments    ().getDouble("claim"));
+        payment.setId(getArguments       ().getInt("id"));
+        payment.setDate(getArguments     ().getString("date"));
+        payment.setPartnerID(getArguments().getInt("partnerID"));
+
+        position    = getArguments       ().getInt("position");
+        carPosition = getArguments       ().getInt("carPosition");
 
         calendar = new calendarFragment();
 
@@ -105,6 +246,8 @@ public class updatePaymentFragment extends DialogFragment {
 
         claimET.setText(df.format(payment.getClaim()));
         dateET.setText(payment.getDate());
+
+        progressDialog = new ProgressDialogWait(getDialog().getContext());
     }
 
     public void Args(Bundle args) {

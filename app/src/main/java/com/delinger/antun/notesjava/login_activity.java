@@ -108,7 +108,7 @@ public class login_activity extends AppCompatActivity {
     }
 
     private void logIn() {
-        if(!userIsAlreadyLoggedIn()) userLocalStorage.storeUserData(username, password, user.getFirstname(), user.getLastname());
+        if(!userIsAlreadyLoggedIn()) userLocalStorage.storeUserData(username, password, user.getFirstname(), user.getLastname(), user.id);
         if(zapamtiMe)userLocalStorage.setUserLoggedIn(true);
         goToMainAcitivity();
 
@@ -150,6 +150,7 @@ public class login_activity extends AppCompatActivity {
                         user.setLastname(Jasonobject.getString("lastname"));
                         user.setUsername(Jasonobject.getString("username"));
                         user.setPassword(Jasonobject.getString("password"));
+                        user.setId(Jasonobject.getInt("id"));
                     }
 
 

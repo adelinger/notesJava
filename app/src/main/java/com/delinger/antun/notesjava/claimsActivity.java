@@ -23,7 +23,7 @@ import com.delinger.antun.notesjava.Objects.car;
 
 import java.text.DecimalFormat;
 
-public class claimsActivity extends AppCompatActivity implements calendarFragment.Datum{
+public class claimsActivity extends AppCompatActivity implements calendarFragment.Datum, updatePaymentFragment.OnUpdateComplete{
     private TextView partnerTV;
     private TextView voziloTV;
     private TextView datumTV;
@@ -74,11 +74,14 @@ public class claimsActivity extends AppCompatActivity implements calendarFragmen
 
                 Bundle bundle = new Bundle();
                 bundle.putSerializable("car", car);
+                bundle.putSerializable("user", user);
+                bundle.putSerializable("partner", partner);
+                bundle.putSerializable("payment", payment);
                 bundle.putInt         ("carPosition", getCarPosition(payment.carIdList.get(i)));
                 bundle.putInt         ("id", payment.idList.get(i));
                 bundle.putDouble      ("claim",payment.claimList.get(i));
+                bundle.putInt         ("partnerID", payment.partnerIdList.get(i));
                 bundle.putString      ("date", getDatum(payment.dateList.get(i)));
-                bundle.putInt         ("position", i);
                 updatePayment.setArguments(bundle);
 
                 updatePayment.show(getFragmentManager().beginTransaction(), "update");
@@ -179,4 +182,17 @@ public class claimsActivity extends AppCompatActivity implements calendarFragmen
 
     }
 
+    @Override
+    public void updateComplete(com.delinger.antun.notesjava.Objects.payment payment) {
+        this.payment = null;
+        this.payment = payment;
+        resetListView(payment);
+    }
+
+    private void resetListView(payment payment) {
+        //TODO fix this shit, remove 0 from list
+        paymentsListView.setAdapter(null);
+        viewClaimsAdapter adapter = new viewClaimsAdapter(claimsActivity.this, payment.userIdList, payment.carIdList, car, payment.dateList, payment.claimList, payment.idList);
+        paymentsListView.setAdapter(adapter);
+    }
 }

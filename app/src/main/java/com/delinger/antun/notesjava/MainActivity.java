@@ -103,6 +103,18 @@ public class MainActivity extends AppCompatActivity implements addNewPartnerFrag
         });
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 1) {
+            if(resultCode == RESULT_OK) {
+              car = (com.delinger.antun.notesjava.Objects.car) data.getSerializableExtra("car");
+            }
+        }
+    }
+
+
+
     private void getCarData() {
         instantiateCarObject();
 
@@ -180,7 +192,7 @@ public class MainActivity extends AppCompatActivity implements addNewPartnerFrag
         intent.putExtra("phone",     partner.phoneList.get(i));
         intent.putExtra("id",        partner.idList.get(i));
 
-        startActivity(intent);
+        startActivityForResult(intent,1);
     }
 
 
@@ -229,6 +241,7 @@ public class MainActivity extends AppCompatActivity implements addNewPartnerFrag
         user.setLastname(prefs.getString ("lastname", ""));
         user.setUsername(prefs.getString ("username",""));
         user.setPassword(prefs.getString ("password", ""));
+        user.setId(prefs.getInt("id", 0));
 
         myToolbar2.setTitle("Korisnik: "+ user.firstname + " "+user.lastname);
     }
