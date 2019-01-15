@@ -38,6 +38,7 @@ public class claimsActivity extends AppCompatActivity implements calendarFragmen
 
     private updatePaymentFragment updatePayment;
     private payment payment;
+    private payment newPayment;
     private partner partner;
     private user user;
     private car car;
@@ -184,13 +185,25 @@ public class claimsActivity extends AppCompatActivity implements calendarFragmen
 
     @Override
     public void updateComplete(com.delinger.antun.notesjava.Objects.payment payment) {
-        this.payment = null;
-        this.payment = payment;
+        this.payment    = payment;
+        this.newPayment = payment;
         resetListView(payment);
     }
 
     private void resetListView(payment payment) {
-        //TODO fix this shit, remove 0 from list
+        for (int i = 0; i<payment.idList.size(); i++){
+            Log.e("hm",payment.getPartnerID().toString());
+            if(payment.claimList.get(i).equals(0.0) || payment.claimList.get(i).equals(0.00) || !(payment.partnerIdList.get(i).equals(payment.partnerIdList.get(i)))) {
+                payment.partnerIdList.remove(i);
+                payment.claimList.remove(i);
+                payment.idList.remove(i);
+                payment.carIdList.remove(i);
+                payment.dateList.remove(i);
+                payment.debitList.remove(i);
+                payment.userIdList.remove(i);
+            }
+        }
+
         paymentsListView.setAdapter(null);
         viewClaimsAdapter adapter = new viewClaimsAdapter(claimsActivity.this, payment.userIdList, payment.carIdList, car, payment.dateList, payment.claimList, payment.idList);
         paymentsListView.setAdapter(adapter);

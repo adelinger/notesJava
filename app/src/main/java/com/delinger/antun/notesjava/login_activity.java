@@ -153,7 +153,6 @@ public class login_activity extends AppCompatActivity {
                         user.setId(Jasonobject.getInt("id"));
                     }
 
-
                 } catch (JSONException e) {
                     Log.e("shit", e.getMessage());
                     userAuthenticated = false;
