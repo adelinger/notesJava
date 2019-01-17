@@ -41,6 +41,7 @@ public class viewPartnerActivity extends AppCompatActivity implements addNewCarF
     private partner partner;
     private car car;
     private car newCar;
+    private car editCar;
     private payment payment;
     private user user;
 
@@ -102,8 +103,13 @@ public class viewPartnerActivity extends AppCompatActivity implements addNewCarF
     @Override
     public void onBackPressed() {
         Intent intent = new Intent();
-        if(newCar != null) intent.putExtra("car", newCar);
-        else intent.putExtra("car", car);
+        try{
+            if(newCar.idList.size() != 0){ intent.putExtra("car", newCar); Log.e("newCar", "here");}
+            else { intent.putExtra("car", car); Log.e("newCar", "here"); }
+        } catch (Exception e){
+            intent.putExtra("car", car);
+        }
+
         intent.putExtra("payment", payment);
         setResult(RESULT_OK, intent);
         finish();
@@ -137,16 +143,14 @@ public class viewPartnerActivity extends AppCompatActivity implements addNewCarF
                 Integer carPartnerID = car.partnerIDList.get(i);
                 Integer partnerID = partner.getId();
 
-                if(!(carPartnerID.equals(partnerID))){
-
-                    car.noteList.        remove(i);
-                    car.partnerIDList.   remove(i);
-                    car.dispatchDateList.remove(i);
-                    car.receiptDateList. remove(i);
-                    car.nameList.        remove(i);
-                    car.workRequiredList.remove(i);
-                    car.idList.          remove(i);
-                    i=-1;
+                if(carPartnerID.equals(partnerID)){
+                    newCar.noteList.        add(car.noteList.get(i));
+                    newCar.partnerIDList.   add(car.partnerIDList.get(i));
+                    newCar.dispatchDateList.add(car.dispatchDateList.get(i));
+                    newCar.receiptDateList. add(car.receiptDateList.get(i));
+                    newCar.nameList.        add(car.nameList.get(i));
+                    newCar.workRequiredList.add(car.workRequiredList.get(i));
+                    newCar.idList.          add(car.idList.get(i));
                 }
             }
 
@@ -180,12 +184,12 @@ public class viewPartnerActivity extends AppCompatActivity implements addNewCarF
     }
 
     private void setListView() {
-        if(car.nameList.size() == 0){
+        if(editCar.nameList.size() == 0){
             String[] emptyList =  {"Niste dodali niti jedno vozilo za ovog partnera"};
             carsListView.setAdapter(new ArrayAdapter<String>(viewPartnerActivity.this, android.R.layout.simple_list_item_1, emptyList));
         }
         else{
-            viewCarsAdapter adapter = new viewCarsAdapter(viewPartnerActivity.this, car, payment);
+            viewCarsAdapter adapter = new viewCarsAdapter(viewPartnerActivity.this, editCar, payment);
             carsListView.setAdapter(adapter);
         }
     }
@@ -227,6 +231,15 @@ public class viewPartnerActivity extends AppCompatActivity implements addNewCarF
         car.receiptDateList  = new ArrayList<>();
         car.nameList         = new ArrayList<>();
         car.workRequiredList = new ArrayList<>();
+
+        editCar = new car();
+        editCar.noteList         = new ArrayList<>();
+        editCar.idList           = new ArrayList<>();
+        editCar.partnerIDList    = new ArrayList<>();
+        editCar.dispatchDateList = new ArrayList<>();
+        editCar.receiptDateList  = new ArrayList<>();
+        editCar.nameList         = new ArrayList<>();
+        editCar.workRequiredList = new ArrayList<>();
 
         payment = new payment();
         payment.idList        = new ArrayList<>();
