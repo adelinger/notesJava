@@ -20,6 +20,7 @@ import com.android.volley.Response;
 import com.android.volley.toolbox.Volley;
 import com.delinger.antun.notesjava.DatabaseConnections.add_car;
 import com.delinger.antun.notesjava.DatabaseConnections.get_cars_for_user;
+import com.delinger.antun.notesjava.DatabaseConnections.insertCarDebt;
 import com.delinger.antun.notesjava.DatabaseConnections.insertPartner;
 import com.delinger.antun.notesjava.HelperClasses.ProgressDialogWait;
 import com.delinger.antun.notesjava.Objects.car;
@@ -42,10 +43,14 @@ public class addNewCarFragment extends DialogFragment {
 
     private EditText carNameET;
     private EditText requiredWorkET;
+    private EditText priceET;
     private Button   addCarButton;
 
     private Integer save_result;
+    private Double price;
     private String  currentDate;
+    private Integer userID;
+    private Integer carID;
     private List<String>emptyList;
 
     private partner partner;
@@ -77,6 +82,7 @@ public class addNewCarFragment extends DialogFragment {
         carNameET      = view.findViewById(R.id.carName);
         requiredWorkET = view.findViewById(R.id.requiredWork);
         addCarButton   = view.findViewById(R.id.addCarTODBButton);
+        priceET        = view.findViewById(R.id.priceET);
 
         instantiateObjects();
 
@@ -115,9 +121,37 @@ public class addNewCarFragment extends DialogFragment {
             }
         };
 
-        add_car addCar = new add_car(car.getName(), car.getWorkRequired(),car.getReceiptDate(), car.getDispatchDate(), partner.getId(), listener);
+        add_car addCar = new add_car(car.getName(), car.getWorkRequired(),car.getReceiptDate(), car.getDispatchDate(), partner.getId(),listener);
         RequestQueue queue = Volley.newRequestQueue(getDialog().getContext());
         queue.add(addCar);
+    }
+
+    private void insertDebt() {
+        Response.Listener<String> listener = new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                try {
+                    JSONArray jsonresponse = new JSONArray(response);
+                    for(int i=0;i<jsonresponse.length();i++)
+                    {
+                        JSONObject Jasonobject = null;
+                        Jasonobject = jsonresponse.getJSONObject(i);
+                        save_result =  Jasonobject.getInt("rezultat");
+
+                        if(save_result == 0) throwNotSuccessfulMessage("Neuspješno dodavanje vozila.");
+                        if(save_result == 1) closeDialog("Vozilo uspješno spremljeno");
+                    }
+
+                } catch (JSONException e) {
+                    Log.e("shit", e.getMessage());
+                }
+            }
+        };
+
+        price = Double.parseDouble(priceET.getText().toString());
+        insertCarDebt insert = new insertCarDebt(carID, price, partner.getId(), userID, listener);
+        RequestQueue queue = Volley.newRequestQueue(getDialog().getContext());
+        queue.add(insert);
     }
 
     private void getNewCar() {
@@ -125,7 +159,6 @@ public class addNewCarFragment extends DialogFragment {
             @Override
             public void onResponse(String response) {
                 progressDialog.dismis();
-
                 try {
                     JSONArray jsonresponse = new JSONArray(response);
                     for(int i=0;i<jsonresponse.length();i++)
@@ -141,10 +174,10 @@ public class addNewCarFragment extends DialogFragment {
                         newCar.idList.          add(i, Jsonobject.getInt("id"));
                         newCar.partnerIDList.   add(i, Jsonobject.getInt("partnerID"));
                         newCar.noteList.        add(i, Jsonobject.getString("note"));
-
+                        carID = Jsonobject.getInt("id");
                     }
 
-                    if(newCar.idList.size() != 0) closeDialog("Vozilo uspješno spremljeno");
+                    if(newCar.idList.size() != 0) insertDebt();
                     else throwNotSuccessfulMessage("Dogodila se greška.");
 
                 } catch (JSONException e) {
@@ -219,6 +252,7 @@ public class addNewCarFragment extends DialogFragment {
         progressDialog = new ProgressDialogWait(getDialog().getContext());
         partner        = new partner();
         partner.setId(getArguments().getInt("partnerID", 0));
+        userID = getArguments().getInt("userID",0);
 
         emptyList = new ArrayList<>();
     }

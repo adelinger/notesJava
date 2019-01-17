@@ -27,6 +27,18 @@
         android:maxLines="3"
         android:hint="Tip popravka"
          />
+    <EditText
+        android:id="@+id/priceET"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:inputType="numberDecimal"
+        android:layout_marginTop="5dp"
+        android:layout_gravity="center"
+        android:lines="3"
+        android:maxLines="3"
+        android:hint="Cijena popravka (€)"
+        />
     <Button
         android:layout_width="300dp"
         android:layout_height="wrap_content"

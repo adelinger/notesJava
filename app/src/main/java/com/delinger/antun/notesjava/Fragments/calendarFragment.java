@@ -16,6 +16,7 @@ import android.widget.CalendarView;
 import com.delinger.antun.notesjava.R;
 import com.delinger.antun.notesjava.claimsActivity;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 public class calendarFragment extends DialogFragment  {
@@ -25,11 +26,13 @@ public class calendarFragment extends DialogFragment  {
 
     private String previousDate;
     private String chosenDate;
+    private String dateFromCalendar;
+    private Boolean dateSelected;
 
     private Datum listener;
 
     public interface Datum {
-        void datePicked(String datum);
+        void datePicked(String datum, String dateFromCalendar);
     }
 
 
@@ -55,11 +58,17 @@ public class calendarFragment extends DialogFragment  {
 
         previousDate = getArguments().getString("previousDate");
         getPreviouslyChosenDate(previousDate);
+        dateSelected = false;
 
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                listener.datePicked(chosenDate);
+                if(!dateSelected) {
+                    chosenDate       = getToday();
+                    dateFromCalendar = getTodayInMillis();
+                }
+
+                listener.datePicked(chosenDate, dateFromCalendar);
                 getDialog().dismiss();
             }
         });
@@ -67,10 +76,27 @@ public class calendarFragment extends DialogFragment  {
             @Override
             public void onSelectedDayChange(@NonNull CalendarView calendarView, int i, int i1, int i2) {
                 chosenDate = getDatum(i, i1+1, i2);
+                Integer j = i;
+                Integer j1 = i1+1;
+                Integer j2 = i2;
+                dateFromCalendar = j.toString()+j1.toString()+j2.toString();
+                dateSelected = true;
             }
         });
 
         return view;
+    }
+
+    private String getTodayInMillis() {
+        Calendar calender = Calendar.getInstance();
+        String timeStamp  = new SimpleDateFormat("dd-MM-YYYY").format(Calendar.getInstance().getTimeInMillis());
+        return timeStamp;
+    }
+
+    private String getToday() {
+        Calendar calender = Calendar.getInstance();
+        String timeStamp = new SimpleDateFormat("dd-MM-YYYY").format(Calendar.getInstance().getTime());
+        return timeStamp;
     }
 
     private void getPreviouslyChosenDate(String datum) {

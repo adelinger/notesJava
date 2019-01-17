@@ -108,12 +108,18 @@ public class MainActivity extends AppCompatActivity implements addNewPartnerFrag
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 1) {
             if(resultCode == RESULT_OK) {
-              car = (com.delinger.antun.notesjava.Objects.car) data.getSerializableExtra("car");
+              car     = (com.delinger.antun.notesjava.Objects.car)     data.getSerializableExtra("car");
+              payment = (com.delinger.antun.notesjava.Objects.payment) data.getSerializableExtra("payment");
+                try{
+                    for(int i=0; i<payment.debitList.size(); i++){
+                        Log.e("mainactivity", payment.debitList.get(i).toString());
+                    }
+                } catch(Exception e) {
+                    Log.e("shit", e.getMessage());
+                }
             }
         }
     }
-
-
 
     private void getCarData() {
         instantiateCarObject();

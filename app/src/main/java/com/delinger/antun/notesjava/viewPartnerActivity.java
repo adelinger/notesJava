@@ -78,9 +78,25 @@ public class viewPartnerActivity extends AppCompatActivity implements addNewCarF
                 intent.putExtra("partner", partner);
                 intent.putExtra("user", user);
                 intent.putExtra("car",  car);
-                startActivity(intent);
+                intent.putExtra("partnerID", partner.id);
+                startActivityForResult(intent,2);
             }
         });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == 2){
+            if(resultCode == 2) {
+                payment = (com.delinger.antun.notesjava.Objects.payment) data.getSerializableExtra("payment");
+                claimSum = 0.00;
+                debitSum = 0.00;
+                balance  = 0.00;
+                calculatePayments();
+            }
+        }
+
     }
 
     @Override
@@ -88,8 +104,10 @@ public class viewPartnerActivity extends AppCompatActivity implements addNewCarF
         Intent intent = new Intent();
         if(newCar != null) intent.putExtra("car", newCar);
         else intent.putExtra("car", car);
+        intent.putExtra("payment", payment);
         setResult(RESULT_OK, intent);
         finish();
+
         super.onBackPressed();
     }
 
@@ -176,6 +194,7 @@ public class viewPartnerActivity extends AppCompatActivity implements addNewCarF
         addNewCarFragment addNewCar = new addNewCarFragment();
         Bundle bundle = new Bundle();
         bundle.putInt("partnerID", partner.id);
+        bundle.putInt("userID", user.id);
         addNewCar.setArguments(bundle);
         addNewCar.show(getFragmentManager().beginTransaction(), "addNewCar");
     }

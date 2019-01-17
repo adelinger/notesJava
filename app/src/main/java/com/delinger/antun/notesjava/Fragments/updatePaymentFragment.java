@@ -26,6 +26,7 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.toolbox.Volley;
 import com.delinger.antun.notesjava.DatabaseConnections.get_transactions;
+import com.delinger.antun.notesjava.DatabaseConnections.selectDataByQuery;
 import com.delinger.antun.notesjava.DatabaseConnections.update_payment;
 import com.delinger.antun.notesjava.HelperClasses.ProgressDialogWait;
 import com.delinger.antun.notesjava.MainActivity;
@@ -43,6 +44,7 @@ import org.json.JSONObject;
 
 import java.text.DateFormat;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 
 public class updatePaymentFragment extends DialogFragment {
@@ -53,6 +55,7 @@ public class updatePaymentFragment extends DialogFragment {
     private Button   saveButton;
 
     private payment payment;
+    private payment newPayment;
     private car car;
     private user user;
     private partner partner;
@@ -62,7 +65,8 @@ public class updatePaymentFragment extends DialogFragment {
     private Integer id;
     private Integer position;
     private Integer carPosition;
-    private String datum;
+    private String dateFromCalendar;
+    private String tag;
     private OnUpdateComplete listener;
 
     public interface OnUpdateComplete {
@@ -122,7 +126,7 @@ public class updatePaymentFragment extends DialogFragment {
 
                 progressDialog.start();
                 payment.setClaim(Double.parseDouble(claimET.getText().toString()));
-                update_payment update_payment = new update_payment(payment.getClaim(),dateET.getText().toString(), payment.getPartnerID(), getCarIdByPosition(), user.getId(), payment.getId(), listener);
+                update_payment update_payment = new update_payment(payment.getClaim(), dateET.getText().toString(), payment.getPartnerID(), getCarIdByPosition(), user.getId(), payment.getId(), listener);
                 RequestQueue queue = Volley.newRequestQueue(getDialog().getContext());
                 queue.add(update_payment);
             }
@@ -152,13 +156,14 @@ public class updatePaymentFragment extends DialogFragment {
                     JSONArray jsonresponse = new JSONArray(response);
                     for (int i = 0; i < jsonresponse.length(); i++) {
                         JSONObject  Jsonobject = jsonresponse.getJSONObject(i);
-                        payment.idList.add(i,        Jsonobject.getInt("id"));
-                        payment.debitList.add(i,     Jsonobject.getDouble("debit"));
-                        payment.claimList.add(i,     Jsonobject.getDouble("claim"));
-                        payment.dateList.add(i,      Jsonobject.getString("date"));
-                        payment.partnerIdList.add(i, Jsonobject.getInt("partnerID"));
-                        payment.carIdList.add(i,     Jsonobject.getInt("carID"));
-                        payment.userIdList.add(i,    Jsonobject.getInt("userID"));
+                        newPayment.idList.add(i,        Jsonobject.getInt("id"));
+                        newPayment.debitList.add(i,     Jsonobject.getDouble("debit"));
+                        newPayment.claimList.add(i,     Jsonobject.getDouble("claim"));
+                        newPayment.dateList.add(i,      Jsonobject.getString("date"));
+                        newPayment.partnerIdList.add(i, Jsonobject.getInt("partnerID"));
+                        newPayment.carIdList.add(i,     Jsonobject.getInt("carID"));
+                        newPayment.userIdList.add(i,    Jsonobject.getInt("userID"));
+
                     }
                 } catch (JSONException e) {
                     Log.e("shit", e.getMessage());
@@ -168,7 +173,8 @@ public class updatePaymentFragment extends DialogFragment {
             }
         };
 
-        get_transactions get_transactions = new get_transactions(listener);
+        String query = "SELECT * FROM payments WHERE  partnerID = "+payment.getPartnerID()+" ";
+        selectDataByQuery get_transactions = new selectDataByQuery(query, listener);
         RequestQueue queue = Volley.newRequestQueue(getDialog().getContext());
         queue.add(get_transactions);
     }
@@ -189,7 +195,7 @@ public class updatePaymentFragment extends DialogFragment {
         builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface builder, int which) {
-                listener.updateComplete(payment);
+                listener.updateComplete(newPayment);
                 builder.dismiss();
                 getDialog().dismiss();
             }
@@ -226,10 +232,11 @@ public class updatePaymentFragment extends DialogFragment {
         carSpinner.setSelection(carPosition);
     }
 
+
     private void instantiateObjects() {
         payment = (com.delinger.antun.notesjava.Objects.payment) getArguments().getSerializable("payment");
-        car     = (com.delinger.antun.notesjava.Objects.car) getArguments().getSerializable    ("car");
-        user    = (com.delinger.antun.notesjava.Objects.user) getArguments().getSerializable   ("user");
+        car     = (com.delinger.antun.notesjava.Objects.car)     getArguments().getSerializable    ("car");
+        user    = (com.delinger.antun.notesjava.Objects.user)    getArguments().getSerializable   ("user");
         partner = (com.delinger.antun.notesjava.Objects.partner) getArguments().getSerializable("partner");
 
         payment.setClaim(getArguments    ().getDouble("claim"));
@@ -240,7 +247,16 @@ public class updatePaymentFragment extends DialogFragment {
         position    = getArguments       ().getInt("position");
         carPosition = getArguments       ().getInt("carPosition");
 
-        calendar = new calendarFragment();
+        calendar   = new calendarFragment();
+        newPayment = new payment();
+
+        newPayment.idList        = new ArrayList<>();
+        newPayment.carIdList     = new ArrayList<>();
+        newPayment.claimList     = new ArrayList<>();
+        newPayment.dateList      = new ArrayList<>();
+        newPayment.debitList     = new ArrayList<>();
+        newPayment.partnerIdList = new ArrayList<>();
+        newPayment.userIdList    = new ArrayList<>();
 
         DecimalFormat df = new DecimalFormat("#0.00");
 
@@ -251,7 +267,8 @@ public class updatePaymentFragment extends DialogFragment {
     }
 
     public void Args(Bundle args) {
-        String newDate = args.getString("newDate");
+        String newDate   = args.getString("newDate");
+        dateFromCalendar = args.getString("dateFromCalendar");
         dateET.setText(newDate);
     }
 

@@ -13,15 +13,27 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.delinger.antun.notesjava.CustomListViewAdapters.viewClaimsAdapter;
+import com.delinger.antun.notesjava.DatabaseConnections.editDataByQuery;
+import com.delinger.antun.notesjava.DatabaseConnections.selectDataByQuery;
 import com.delinger.antun.notesjava.Fragments.calendarFragment;
 import com.delinger.antun.notesjava.Fragments.updatePaymentFragment;
+import com.delinger.antun.notesjava.HelperClasses.ProgressDialogWait;
 import com.delinger.antun.notesjava.Objects.partner;
 import com.delinger.antun.notesjava.Objects.payment;
 import com.delinger.antun.notesjava.Objects.user;
 import com.delinger.antun.notesjava.Objects.car;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 
 public class claimsActivity extends AppCompatActivity implements calendarFragment.Datum, updatePaymentFragment.OnUpdateComplete{
     private TextView partnerTV;
@@ -37,8 +49,10 @@ public class claimsActivity extends AppCompatActivity implements calendarFragmen
     private Double  sum;
 
     private updatePaymentFragment updatePayment;
+    private ProgressDialogWait progressDialogWait;
     private payment payment;
     private payment newPayment;
+    private payment getPayment;
     private partner partner;
     private user user;
     private car car;
@@ -54,9 +68,23 @@ public class claimsActivity extends AppCompatActivity implements calendarFragmen
         sumTV            = findViewById(R.id.claimActivitySum);
 
         instantiateObjects();
-        removeDebtsFromPayments();
-        fillListView();
+        resetListView();
         getSum();
+
+        addNewClaim.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Bundle bundle = new Bundle();
+                bundle.putSerializable("car", car);
+                bundle.putSerializable("user", user);
+                bundle.putSerializable("partner", partner);
+                bundle.putSerializable("payment", payment);
+                bundle.putInt("partnerID", partner.id);
+                updatePayment.setArguments(bundle);
+
+                updatePayment.show(getFragmentManager().beginTransaction(), "insert");
+            }
+        });
 
       paymentsListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
           @Override
@@ -67,7 +95,17 @@ public class claimsActivity extends AppCompatActivity implements calendarFragmen
       });
     }
 
+    @Override
+    public void onBackPressed() {
+        Intent intent = new Intent();
+        intent.putExtra("payment", payment);
+        setResult(2, intent);
+        finish();
+        super.onBackPressed();
+    }
+
     private void performOnItemLongClickAction(final Integer i) {
+        final Integer position = i;
         AlertDialog.Builder builder = new AlertDialog.Builder(claimsActivity.this);
         builder.setPositiveButton("Izmijeni unos", new DialogInterface.OnClickListener() {
             @Override
@@ -93,10 +131,128 @@ public class claimsActivity extends AppCompatActivity implements calendarFragmen
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
 
+                AlertDialog.Builder builder = new AlertDialog.Builder(claimsActivity.this);
+                builder.setMessage("Jeste li sigurni da želite obrisati ovu uplatu?");
+                builder.setPositiveButton("Obriši", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface builder, int which) {
+                        deleteSelectedItem(position);
+                    }
+                });
+                builder.setNegativeButton("Odustani", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.dismiss();
+                    }
+                });
+                builder.create();
+                builder.setCancelable(false);
+                builder.show();
             }
         });
         builder.create();
         builder.setCancelable(true);
+        builder.show();
+    }
+
+    private void deleteSelectedItem(Integer position){
+        Response.Listener<String> listener = new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                int save_result = 0;
+                try {
+                    JSONArray jsonresponse = new JSONArray(response);
+                    for(int i=0;i<jsonresponse.length();i++)
+                    {
+                        JSONObject Jasonobject = null;
+                        Jasonobject = jsonresponse.getJSONObject(i);
+                        save_result =  Jasonobject.getInt("rezultat");
+
+                        if(save_result == 0) throwNotSuccessfulMessage("Neuspješno. Pokušajte ponovno");
+                        if(save_result == 1) getPaymentData();
+                    }
+
+                } catch (JSONException e) {
+                    getPaymentData();
+                }
+                progressDialogWait.dismis();
+            }
+        };
+        progressDialogWait.start();
+        String query = "DELETE FROM payments WHERE id = "+newPayment.idList.get(position)+" ";
+        editDataByQuery editData = new editDataByQuery(query, listener);
+        RequestQueue queue = Volley.newRequestQueue(claimsActivity.this);
+        queue.add(editData);
+    }
+    private void getPaymentData(){
+        Response.Listener<String> listener = new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                progressDialogWait.dismis();
+
+                try {
+                    JSONArray jsonresponse = new JSONArray(response);
+                    for (int i = 0; i < jsonresponse.length(); i++) {
+                        JSONObject  Jsonobject = jsonresponse.getJSONObject(i);
+                        getPayment.idList.add(i,        Jsonobject.getInt("id"));
+                        getPayment.debitList.add(i,     Jsonobject.getDouble("debit"));
+                        getPayment.claimList.add(i,     Jsonobject.getDouble("claim"));
+                        getPayment.dateList.add(i,      Jsonobject.getString("date"));
+                        getPayment.partnerIdList.add(i, Jsonobject.getInt("partnerID"));
+                        getPayment.carIdList.add(i,     Jsonobject.getInt("carID"));
+                        getPayment.userIdList.add(i,    Jsonobject.getInt("userID"));
+
+                    }
+                } catch (JSONException e) {
+                    Log.e("shit", e.getMessage());
+                }
+                closeDialog("Uspješno obrisano!");
+            }
+        };
+
+        String query = "SELECT * FROM payments WHERE  partnerID = "+partner.id.toString()+" ";
+        selectDataByQuery get_transactions = new selectDataByQuery(query, listener);
+        RequestQueue queue = Volley.newRequestQueue(claimsActivity.this);
+        queue.add(get_transactions);
+    }
+
+    private void closeDialog(String message) {
+        progressDialogWait.dismis();
+        AlertDialog.Builder builder = new AlertDialog.Builder(claimsActivity.this);
+        builder.setMessage(message);
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface builder, int which) {
+                payment = getPayment;
+                instantiatePaymentObject();
+                resetListView();
+                sum = 0.0;
+                getSum();
+                builder.dismiss();
+            }
+        });
+        builder.create();
+        builder.setCancelable(false);
+        builder.show();
+    }
+    private void throwNotSuccessfulMessage(String notSuccessfullMessage) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(claimsActivity.this);
+        builder.setMessage(notSuccessfullMessage);
+        builder.setPositiveButton("Pokušaj ponovno", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface builder, int which) {
+                return;
+            }
+
+        });
+        builder.setNegativeButton("Izlaz", new DialogInterface.OnClickListener(){
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+               dialogInterface.dismiss();
+            }
+        });
+        builder.create();
+        builder.setCancelable(false);
         builder.show();
     }
 
@@ -142,6 +298,26 @@ public class claimsActivity extends AppCompatActivity implements calendarFragmen
         paymentsListView.setAdapter(adapter);
     }
 
+    private void instantiatePaymentObject() {
+        newPayment = new payment();
+        newPayment.idList        = new ArrayList<>();
+        newPayment.carIdList     = new ArrayList<>();
+        newPayment.claimList     = new ArrayList<>();
+        newPayment.dateList      = new ArrayList<>();
+        newPayment.debitList     = new ArrayList<>();
+        newPayment.partnerIdList = new ArrayList<>();
+        newPayment.userIdList    = new ArrayList<>();
+
+        getPayment = new payment();
+        getPayment.idList        = new ArrayList<>();
+        getPayment.carIdList     = new ArrayList<>();
+        getPayment.claimList     = new ArrayList<>();
+        getPayment.dateList      = new ArrayList<>();
+        getPayment.debitList     = new ArrayList<>();
+        getPayment.partnerIdList = new ArrayList<>();
+        getPayment.userIdList    = new ArrayList<>();
+    }
+
     private void instantiateObjects() {
         payment = new payment();
         partner = new partner();
@@ -152,9 +328,12 @@ public class claimsActivity extends AppCompatActivity implements calendarFragmen
         car     = (com.delinger.antun.notesjava.Objects.car)     getIntent().getSerializableExtra("car");
 
         toolbar.setTitle("Pregled uplata partnera "+partner.getFirstname() + " " + partner.getLastName());
-        sum = 0.00;
+        sum     = 0.00;
+        partner.setId(getIntent().getIntExtra("partnerID",0));
 
-        updatePayment = new updatePaymentFragment();
+        updatePayment      = new updatePaymentFragment();
+        progressDialogWait = new ProgressDialogWait(claimsActivity.this);
+        instantiatePaymentObject();
     }
 
     private String getDatum(String datum) {
@@ -176,36 +355,39 @@ public class claimsActivity extends AppCompatActivity implements calendarFragmen
     }
 
     @Override
-    public void datePicked(String datum) {
+    public void datePicked(String datum, String dateFromCalendar) {
         Bundle args = new Bundle();
         args.putString("newDate", datum);
+        args.putString("dateFromCalendar", dateFromCalendar);
         updatePayment.Args(args);
-
     }
 
     @Override
     public void updateComplete(com.delinger.antun.notesjava.Objects.payment payment) {
         this.payment    = payment;
-        this.newPayment = payment;
-        resetListView(payment);
+        resetListView();
     }
 
-    private void resetListView(payment payment) {
-        for (int i = 0; i<payment.idList.size(); i++){
-            Log.e("hm",payment.getPartnerID().toString());
-            if(payment.claimList.get(i).equals(0.0) || payment.claimList.get(i).equals(0.00) || !(payment.partnerIdList.get(i).equals(payment.partnerIdList.get(i)))) {
-                payment.partnerIdList.remove(i);
-                payment.claimList.remove(i);
-                payment.idList.remove(i);
-                payment.carIdList.remove(i);
-                payment.dateList.remove(i);
-                payment.debitList.remove(i);
-                payment.userIdList.remove(i);
+    private void resetListView() {
+        try {
+            for(int i=0; i<payment.idList.size(); i++){
+                if(payment.debitList.get(i).equals(0.00)){
+                    newPayment.idList       .add(payment.idList       .get(i));
+                    newPayment.carIdList    .add(payment.carIdList    .get(i));
+                    newPayment.partnerIdList.add(payment.partnerIdList.get(i));
+                    newPayment.dateList     .add(payment.dateList     .get(i));
+                    newPayment.claimList    .add(payment.claimList    .get(i));
+                    newPayment.debitList    .add(payment.debitList    .get(i));
+                    newPayment.userIdList   .add(payment.userIdList   .get(i));
+                }
             }
+        } catch(Exception e){
+            Log.e("", e.getMessage());
         }
 
         paymentsListView.setAdapter(null);
-        viewClaimsAdapter adapter = new viewClaimsAdapter(claimsActivity.this, payment.userIdList, payment.carIdList, car, payment.dateList, payment.claimList, payment.idList);
-        paymentsListView.setAdapter(adapter);
+        viewClaimsAdapter newAdapter = new viewClaimsAdapter(claimsActivity.this, newPayment.userIdList, newPayment.carIdList, car, newPayment.dateList, newPayment.claimList, newPayment.idList);
+        paymentsListView.setAdapter(newAdapter);
     }
+
 }
