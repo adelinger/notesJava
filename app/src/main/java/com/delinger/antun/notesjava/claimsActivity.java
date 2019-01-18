@@ -9,6 +9,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -293,10 +294,6 @@ public class claimsActivity extends AppCompatActivity implements calendarFragmen
         }
     }
 
-    private void fillListView() {
-        viewClaimsAdapter adapter = new viewClaimsAdapter(claimsActivity.this, payment.userIdList, payment.carIdList, car, payment.dateList, payment.claimList, payment.idList);
-        paymentsListView.setAdapter(adapter);
-    }
 
     private void instantiatePaymentObject() {
         newPayment = new payment();
@@ -382,12 +379,19 @@ public class claimsActivity extends AppCompatActivity implements calendarFragmen
                 }
             }
         } catch(Exception e){
-            Log.e("", e.getMessage());
+            Log.e("resetlistview", e.getMessage());
         }
 
-        paymentsListView.setAdapter(null);
-        viewClaimsAdapter newAdapter = new viewClaimsAdapter(claimsActivity.this, newPayment.userIdList, newPayment.carIdList, car, newPayment.dateList, newPayment.claimList, newPayment.idList);
-        paymentsListView.setAdapter(newAdapter);
+        if(newPayment.claimList.size() == 0){
+            String[] emptyList =  {"Ovaj partner nema niti jednu uplatu"};
+            paymentsListView.setAdapter(new ArrayAdapter<String>(claimsActivity.this, android.R.layout.simple_list_item_1, emptyList));
+        }else{
+            paymentsListView.setAdapter(null);
+            viewClaimsAdapter newAdapter = new viewClaimsAdapter(claimsActivity.this, newPayment.userIdList, newPayment.carIdList, car, newPayment.dateList, newPayment.claimList, newPayment.idList);
+            paymentsListView.setAdapter(newAdapter);
+        }
+
+
     }
 
 }

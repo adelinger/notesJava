@@ -7,16 +7,19 @@ import android.support.v7.widget.Toolbar;
 
 import com.delinger.antun.notesjava.CustomListViewAdapters.viewCarsAdapter;
 import com.delinger.antun.notesjava.Fragments.addNewCarFragment;
+import com.delinger.antun.notesjava.Fragments.viewCarFragment;
 import com.delinger.antun.notesjava.Objects.car;
 import com.delinger.antun.notesjava.Objects.partner;
 import com.delinger.antun.notesjava.Objects.payment;
 import com.delinger.antun.notesjava.Objects.user;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -37,6 +40,7 @@ public class viewPartnerActivity extends AppCompatActivity implements addNewCarF
     private Double debitSum;
     private Double claimSum;
     private Double balance;
+    private Double addedCarPrice;
 
     private partner partner;
     private car car;
@@ -61,7 +65,7 @@ public class viewPartnerActivity extends AppCompatActivity implements addNewCarF
         getPartnerData();
         getCarsData();
         getPaymentsData();
-        calculatePayments();
+        calculatePayments(0.00);
         setListView();
 
         addCarButton.setOnClickListener(new View.OnClickListener() {
@@ -82,6 +86,25 @@ public class viewPartnerActivity extends AppCompatActivity implements addNewCarF
                 startActivityForResult(intent,2);
             }
         });
+        carsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                performItemClickAction(i);
+            }
+        });
+    }
+
+    private void performItemClickAction(int position) {
+        viewCarFragment viewCarFragment = new viewCarFragment();
+        Bundle bundle = new Bundle();
+        bundle.putString("carName",         newCar.nameList.get(position));
+        bundle.putString("carReceiptDate",  newCar.receiptDateList.get(position));
+        bundle.putString("carDispatchDate", newCar.dispatchDateList.get(position));
+        bundle.putInt   ("carID",           newCar.idList.get(position));
+        bundle.putDouble("carCost",         newCar.costList.get(position));
+        bundle.putString("carNote",         newCar.noteList.get(position));
+        viewCarFragment.setArguments(bundle);
+        viewCarFragment.show(getFragmentManager().beginTransaction(), "viewCar");
     }
 
     @Override
@@ -90,10 +113,9 @@ public class viewPartnerActivity extends AppCompatActivity implements addNewCarF
         if(requestCode == 2){
             if(resultCode == 2) {
                 payment = (com.delinger.antun.notesjava.Objects.payment) data.getSerializableExtra("payment");
-                recalculatePayments();
             }
         }
-
+        recalculatePayments(0.00);
     }
 
     @Override
@@ -105,17 +127,18 @@ public class viewPartnerActivity extends AppCompatActivity implements addNewCarF
         super.onBackPressed();
     }
 
-    private void recalculatePayments() {
+    private void recalculatePayments(Double price) {
         claimSum = 0.00;
         debitSum = 0.00;
         balance  = 0.00;
-        calculatePayments();
+        calculatePayments(price);
     }
 
-    private void calculatePayments() {
+    private void calculatePayments(Double addedCarPrice) {
         for (int i=0; i<payment.debitList.size(); i++) {
             debitSum = debitSum + payment.debitList.get(i);
         }
+        debitSum = debitSum + addedCarPrice;
         for (int i=0; i<payment.claimList.size(); i++){
             claimSum = claimSum + payment.claimList.get(i);
         }
@@ -146,6 +169,7 @@ public class viewPartnerActivity extends AppCompatActivity implements addNewCarF
                     newCar.nameList.        add(car.nameList.get(i));
                     newCar.workRequiredList.add(car.workRequiredList.get(i));
                     newCar.idList.          add(car.idList.get(i));
+                    newCar.costList.        add(car.costList.get(i));
                 }
             }
 
@@ -209,9 +233,10 @@ public class viewPartnerActivity extends AppCompatActivity implements addNewCarF
     }
 
     private void instantiateObjects() {
-        debitSum = 0.00;
-        claimSum = 0.00;
-        balance  = 0.00;
+        debitSum      = 0.00;
+        claimSum      = 0.00;
+        balance       = 0.00;
+        addedCarPrice = 0.00;
 
         partner  = new partner();
         intent   = new Intent();
@@ -228,6 +253,7 @@ public class viewPartnerActivity extends AppCompatActivity implements addNewCarF
         newCar.receiptDateList  = new ArrayList<>();
         newCar.nameList         = new ArrayList<>();
         newCar.workRequiredList = new ArrayList<>();
+        newCar.costList         = new ArrayList<>();
 
         payment = new payment();
         payment.idList        = new ArrayList<>();
@@ -244,11 +270,13 @@ public class viewPartnerActivity extends AppCompatActivity implements addNewCarF
 
 
     @Override
-    public void onComplete(com.delinger.antun.notesjava.Objects.car car) {
+    public void onComplete(com.delinger.antun.notesjava.Objects.car car, Double price) {
         newCar = new car();
         newCar = car;
 
-        recalculatePayments();
+        Log.e("price", addedCarPrice.toString() + price.toString());
+        addedCarPrice = addedCarPrice + price;
+        recalculatePayments(addedCarPrice);
         resetListView();
     }
 

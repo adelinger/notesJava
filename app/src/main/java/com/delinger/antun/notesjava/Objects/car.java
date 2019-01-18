@@ -12,7 +12,24 @@ public class car implements Serializable {
     private String dispatchDate;
     private Integer partnerID;
     private String note;
+    private Double cost;
+    public List<Double> costList;
 
+    public Double getCost() {
+        return cost;
+    }
+
+    public void setCost(Double cost) {
+        this.cost = cost;
+    }
+
+    public List<Double> getCostList() {
+        return costList;
+    }
+
+    public void setCostList(List<Double> costList) {
+        this.costList = costList;
+    }
 
     public List<String> nameList;
     public List<String> workRequiredList;

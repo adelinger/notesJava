@@ -60,7 +60,7 @@ public class addNewCarFragment extends DialogFragment {
     private onCarAdded listener;
 
     public interface onCarAdded {
-        public void onComplete(car car);
+        public void onComplete(car car, Double price);
     }
 
     @Override
@@ -174,6 +174,8 @@ public class addNewCarFragment extends DialogFragment {
                         newCar.idList.          add(i, Jsonobject.getInt("id"));
                         newCar.partnerIDList.   add(i, Jsonobject.getInt("partnerID"));
                         newCar.noteList.        add(i, Jsonobject.getString("note"));
+                        newCar.costList.        add(i, Jasonobject.getDouble("cost"));
+
                         carID = Jsonobject.getInt("id");
                     }
 
@@ -198,7 +200,7 @@ public class addNewCarFragment extends DialogFragment {
                 Integer carPartnerID = newCar.partnerIDList.get(i);
                 Integer partnerID    = partner.getId();
 
-                if(!(newCar.partnerIDList.equals(partnerID)) ){
+                if(!(carPartnerID.equals(partnerID)) ){
                     newCar.noteList.        remove(i);
                     newCar.partnerIDList.   remove(i);
                     newCar.dispatchDateList.remove(i);
@@ -206,6 +208,8 @@ public class addNewCarFragment extends DialogFragment {
                     newCar.nameList.        remove(i);
                     newCar.workRequiredList.remove(i);
                     newCar.idList.          remove(i);
+                    newCar.costList.        remove(i);
+                    i = -1;
                 }
             }
 
@@ -242,7 +246,7 @@ public class addNewCarFragment extends DialogFragment {
             @Override
             public void onClick(DialogInterface builder, int which) {
                 removeOtherUsersFromCar();
-                listener.onComplete(newCar);
+                listener.onComplete(newCar, price);
                 builder.dismiss();
                 getDialog().dismiss();
             }
@@ -272,6 +276,7 @@ public class addNewCarFragment extends DialogFragment {
         newCar.receiptDateList  = new ArrayList<>();
         newCar.nameList         = new ArrayList<>();
         newCar.workRequiredList = new ArrayList<>();
+        newCar.costList         = new ArrayList<>();
 
         progressDialog = new ProgressDialogWait(getDialog().getContext());
         partner        = new partner();

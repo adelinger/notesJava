@@ -133,6 +133,7 @@ public class MainActivity extends AppCompatActivity implements addNewPartnerFrag
                         car.idList.          add(i, Jsonobject.getInt("id"));
                         car.partnerIDList.   add(i, Jsonobject.getInt("partnerID"));
                         car.noteList.        add(i, Jsonobject.getString("note"));
+                        car.costList.        add(i, Jsonobject.getDouble("cost"));
 
                     }
                 } catch (JSONException e) {
@@ -274,6 +275,7 @@ public class MainActivity extends AppCompatActivity implements addNewPartnerFrag
         car.receiptDateList  = new ArrayList<>();
         car.nameList         = new ArrayList<>();
         car.workRequiredList = new ArrayList<>();
+        car.costList         = new ArrayList<>();
     }
    private void instantiatePaymentObject() {
        payment = new payment();
