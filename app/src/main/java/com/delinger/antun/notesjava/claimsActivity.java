@@ -204,7 +204,7 @@ public class claimsActivity extends AppCompatActivity implements calendarFragmen
 
                     }
                 } catch (JSONException e) {
-                    Log.e("shit", e.getMessage());
+                    Log.e("shit1", e.getMessage());
                 }
                 closeDialog("Uspješno obrisano!");
             }
@@ -289,7 +289,7 @@ public class claimsActivity extends AppCompatActivity implements calendarFragmen
             }
 
         } catch (Exception e) {
-            Log.e("shit", e.getMessage());
+            Log.e("shit2", e.getMessage());
         }
     }
 

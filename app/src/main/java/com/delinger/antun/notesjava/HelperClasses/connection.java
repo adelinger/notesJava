@@ -3,6 +3,7 @@ package com.delinger.antun.notesjava.HelperClasses;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.widget.Toast;
 
 public class connection {
 
@@ -17,5 +18,8 @@ public class connection {
             }
         }
         return isNetAvailable;
+    }
+    public static void throwNoNetworkMessage(Context context) {
+        Toast.makeText(context, "Nema pristupa internetu. Molimo povežite se na internet pa pokušajte ponovno", Toast.LENGTH_LONG).show();
     }
 }

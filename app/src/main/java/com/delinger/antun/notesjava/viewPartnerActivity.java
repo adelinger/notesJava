@@ -41,7 +41,6 @@ public class viewPartnerActivity extends AppCompatActivity implements addNewCarF
     private partner partner;
     private car car;
     private car newCar;
-    private car editCar;
     private payment payment;
     private user user;
 
@@ -91,10 +90,7 @@ public class viewPartnerActivity extends AppCompatActivity implements addNewCarF
         if(requestCode == 2){
             if(resultCode == 2) {
                 payment = (com.delinger.antun.notesjava.Objects.payment) data.getSerializableExtra("payment");
-                claimSum = 0.00;
-                debitSum = 0.00;
-                balance  = 0.00;
-                calculatePayments();
+                recalculatePayments();
             }
         }
 
@@ -103,18 +99,17 @@ public class viewPartnerActivity extends AppCompatActivity implements addNewCarF
     @Override
     public void onBackPressed() {
         Intent intent = new Intent();
-        try{
-            if(newCar.idList.size() != 0){ intent.putExtra("car", newCar); Log.e("newCar", "here");}
-            else { intent.putExtra("car", car); Log.e("newCar", "here"); }
-        } catch (Exception e){
-            intent.putExtra("car", car);
-        }
-
-        intent.putExtra("payment", payment);
         setResult(RESULT_OK, intent);
         finish();
 
         super.onBackPressed();
+    }
+
+    private void recalculatePayments() {
+        claimSum = 0.00;
+        debitSum = 0.00;
+        balance  = 0.00;
+        calculatePayments();
     }
 
     private void calculatePayments() {
@@ -155,7 +150,7 @@ public class viewPartnerActivity extends AppCompatActivity implements addNewCarF
             }
 
         } catch (Exception e) {
-            Log.e("shit", e.getMessage());
+            Log.e("getcars", e.getMessage());
         }
 
     }
@@ -179,17 +174,17 @@ public class viewPartnerActivity extends AppCompatActivity implements addNewCarF
             }
 
         } catch (Exception e) {
-            Log.e("shit", e.getMessage());
+            Log.e("getpaymentsdata", e.getMessage());
         }
     }
 
     private void setListView() {
-        if(editCar.nameList.size() == 0){
+        if(newCar.nameList.size() == 0){
             String[] emptyList =  {"Niste dodali niti jedno vozilo za ovog partnera"};
             carsListView.setAdapter(new ArrayAdapter<String>(viewPartnerActivity.this, android.R.layout.simple_list_item_1, emptyList));
         }
         else{
-            viewCarsAdapter adapter = new viewCarsAdapter(viewPartnerActivity.this, editCar, payment);
+            viewCarsAdapter adapter = new viewCarsAdapter(viewPartnerActivity.this, newCar, payment);
             carsListView.setAdapter(adapter);
         }
     }
@@ -224,22 +219,15 @@ public class viewPartnerActivity extends AppCompatActivity implements addNewCarF
         emptyList = new ArrayList<String>();
 
         car = new car();
-        car.noteList         = new ArrayList<>();
-        car.idList           = new ArrayList<>();
-        car.partnerIDList    = new ArrayList<>();
-        car.dispatchDateList = new ArrayList<>();
-        car.receiptDateList  = new ArrayList<>();
-        car.nameList         = new ArrayList<>();
-        car.workRequiredList = new ArrayList<>();
 
-        editCar = new car();
-        editCar.noteList         = new ArrayList<>();
-        editCar.idList           = new ArrayList<>();
-        editCar.partnerIDList    = new ArrayList<>();
-        editCar.dispatchDateList = new ArrayList<>();
-        editCar.receiptDateList  = new ArrayList<>();
-        editCar.nameList         = new ArrayList<>();
-        editCar.workRequiredList = new ArrayList<>();
+        newCar = new car();
+        newCar.noteList         = new ArrayList<>();
+        newCar.idList           = new ArrayList<>();
+        newCar.partnerIDList    = new ArrayList<>();
+        newCar.dispatchDateList = new ArrayList<>();
+        newCar.receiptDateList  = new ArrayList<>();
+        newCar.nameList         = new ArrayList<>();
+        newCar.workRequiredList = new ArrayList<>();
 
         payment = new payment();
         payment.idList        = new ArrayList<>();
@@ -260,6 +248,7 @@ public class viewPartnerActivity extends AppCompatActivity implements addNewCarF
         newCar = new car();
         newCar = car;
 
+        recalculatePayments();
         resetListView();
     }
 

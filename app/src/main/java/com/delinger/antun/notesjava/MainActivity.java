@@ -76,10 +76,7 @@ public class MainActivity extends AppCompatActivity implements addNewPartnerFrag
         instantiateObject();
         instantiateCarObject();
         instantiatePaymentObject();
-        getPartnerData();
-        getUserData();
-        getCarData();
-        getPaymentData();
+        getAllData();
 
         addButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -106,17 +103,15 @@ public class MainActivity extends AppCompatActivity implements addNewPartnerFrag
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == 1) {
-            if(resultCode == RESULT_OK) {
-              car     = (com.delinger.antun.notesjava.Objects.car)     data.getSerializableExtra("car");
-              payment = (com.delinger.antun.notesjava.Objects.payment) data.getSerializableExtra("payment");
-                try{
-                    for(int i=0; i<payment.debitList.size(); i++){
-                    }
-                } catch(Exception e) {
-                }
-            }
-        }
+        getAllData();
+    }
+
+    private void getAllData() {
+        startProgressDialog();
+        getPartnerData();
+        getUserData();
+        getCarData();
+        getPaymentData();
     }
 
     private void getCarData() {

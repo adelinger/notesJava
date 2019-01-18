@@ -191,6 +191,29 @@ public class addNewCarFragment extends DialogFragment {
         queue.add(getCar);
     }
 
+    private void removeOtherUsersFromCar() {
+        try {
+            for (int i=0; i <newCar.partnerIDList.size(); i++) {
+
+                Integer carPartnerID = newCar.partnerIDList.get(i);
+                Integer partnerID    = partner.getId();
+
+                if(!(newCar.partnerIDList.equals(partnerID)) ){
+                    newCar.noteList.        remove(i);
+                    newCar.partnerIDList.   remove(i);
+                    newCar.dispatchDateList.remove(i);
+                    newCar.receiptDateList. remove(i);
+                    newCar.nameList.        remove(i);
+                    newCar.workRequiredList.remove(i);
+                    newCar.idList.          remove(i);
+                }
+            }
+
+        } catch (Exception e) {
+            Log.e("shit", e.getMessage());
+        }
+    }
+
     private void throwNotSuccessfulMessage(String noSuccessMessage) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getDialog().getContext());
         builder.setMessage(noSuccessMessage);
@@ -218,6 +241,7 @@ public class addNewCarFragment extends DialogFragment {
         builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface builder, int which) {
+                removeOtherUsersFromCar();
                 listener.onComplete(newCar);
                 builder.dismiss();
                 getDialog().dismiss();
