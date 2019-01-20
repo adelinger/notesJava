@@ -23,6 +23,7 @@ import com.delinger.antun.notesjava.DatabaseConnections.editDataByQuery;
 import com.delinger.antun.notesjava.DatabaseConnections.selectDataByQuery;
 import com.delinger.antun.notesjava.Fragments.calendarFragment;
 import com.delinger.antun.notesjava.Fragments.updatePaymentFragment;
+import com.delinger.antun.notesjava.HelperClasses.Connection;
 import com.delinger.antun.notesjava.HelperClasses.ProgressDialogWait;
 import com.delinger.antun.notesjava.Objects.partner;
 import com.delinger.antun.notesjava.Objects.payment;
@@ -296,15 +297,6 @@ public class claimsActivity extends AppCompatActivity implements calendarFragmen
 
 
     private void instantiatePaymentObject() {
-        newPayment = new payment();
-        newPayment.idList        = new ArrayList<>();
-        newPayment.carIdList     = new ArrayList<>();
-        newPayment.claimList     = new ArrayList<>();
-        newPayment.dateList      = new ArrayList<>();
-        newPayment.debitList     = new ArrayList<>();
-        newPayment.partnerIdList = new ArrayList<>();
-        newPayment.userIdList    = new ArrayList<>();
-
         getPayment = new payment();
         getPayment.idList        = new ArrayList<>();
         getPayment.carIdList     = new ArrayList<>();
@@ -366,9 +358,18 @@ public class claimsActivity extends AppCompatActivity implements calendarFragmen
     }
 
     private void resetListView() {
+        newPayment = new payment();
+        newPayment = new payment();
+        newPayment.idList        = new ArrayList<>();
+        newPayment.carIdList     = new ArrayList<>();
+        newPayment.claimList     = new ArrayList<>();
+        newPayment.dateList      = new ArrayList<>();
+        newPayment.debitList     = new ArrayList<>();
+        newPayment.partnerIdList = new ArrayList<>();
+        newPayment.userIdList    = new ArrayList<>();
         try {
             for(int i=0; i<payment.idList.size(); i++){
-                if(payment.debitList.get(i).equals(0.00)){
+                if(!(payment.claimList.get(i).equals(0.00))){
                     newPayment.idList       .add(payment.idList       .get(i));
                     newPayment.carIdList    .add(payment.carIdList    .get(i));
                     newPayment.partnerIdList.add(payment.partnerIdList.get(i));

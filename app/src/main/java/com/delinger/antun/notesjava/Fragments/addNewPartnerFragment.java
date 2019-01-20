@@ -20,7 +20,7 @@ import com.android.volley.toolbox.Volley;
 import com.delinger.antun.notesjava.DatabaseConnections.delete_partner;
 import com.delinger.antun.notesjava.DatabaseConnections.insertPartner;
 import com.delinger.antun.notesjava.DatabaseConnections.update_partner;
-import com.delinger.antun.notesjava.HelperClasses.connection;
+import com.delinger.antun.notesjava.HelperClasses.Connection;
 import com.delinger.antun.notesjava.HelperClasses.ProgressDialogWait;
 import com.delinger.antun.notesjava.Objects.partner;
 import com.delinger.antun.notesjava.Objects.user;
@@ -40,7 +40,7 @@ public class addNewPartnerFragment extends DialogFragment {
     private Button   addPartnerButton;
 
     ProgressDialogWait progressDialog;
-    connection         connection;
+    Connection Connection;
     partnerOptions     partnerOptions;
 
     private user    user;
@@ -90,7 +90,7 @@ public class addNewPartnerFragment extends DialogFragment {
                 if(!textIsEntered()) {
                     Toast.makeText(getDialog().getContext(), "Morate upisati ime i prezime partnera kako biste ga mogli spremiti.", Toast.LENGTH_LONG).show(); return;
                 }
-                if(!connection.isNetworkAvailable(getDialog().getContext())) throwNotSuccessfulMessage("Nema internet veze.");
+                if(!Connection.isNetworkAvailable(getDialog().getContext())) throwNotSuccessfulMessage("Nema internet veze.");
 
                 progressDialog.start();
 
@@ -286,7 +286,7 @@ public class addNewPartnerFragment extends DialogFragment {
         partner = new partner();
 
         progressDialog = new ProgressDialogWait(getDialog().getContext());
-        connection = new connection();
+        Connection = new Connection();
 
         tag = this.getTag();
     }

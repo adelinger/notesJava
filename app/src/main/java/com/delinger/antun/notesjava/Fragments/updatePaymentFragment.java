@@ -21,10 +21,12 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.toolbox.Volley;
+import com.delinger.antun.notesjava.DatabaseConnections.editDataByQuery;
 import com.delinger.antun.notesjava.DatabaseConnections.get_transactions;
 import com.delinger.antun.notesjava.DatabaseConnections.selectDataByQuery;
 import com.delinger.antun.notesjava.DatabaseConnections.update_payment;
@@ -86,7 +88,7 @@ public class updatePaymentFragment extends DialogFragment {
 
     @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, @Nullable final ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.update_payment_fragment_layout, null, false);
 
         dateET         = view.findViewById(R.id.dateET);
@@ -96,10 +98,12 @@ public class updatePaymentFragment extends DialogFragment {
 
         instantiateObjects();
         loadSpinner();
+        tag = getTag();
 
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if(claimET.getText().toString().trim().length()<1 || dateET.getText().toString().trim().length()<1) { Toast.makeText(getDialog().getContext(), "Morate upisati iznos i datum", Toast.LENGTH_LONG).show(); return;}
                 Response.Listener<String> listener = new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
@@ -119,16 +123,26 @@ public class updatePaymentFragment extends DialogFragment {
                             }
 
                         } catch (JSONException e) {
-                            Log.e("shit", e.getMessage());
+                            Log.e("insert/update", e.getMessage());
                         }
                     }
                 };
 
                 progressDialog.start();
                 payment.setClaim(Double.parseDouble(claimET.getText().toString()));
-                update_payment update_payment = new update_payment(payment.getClaim(), dateET.getText().toString(), payment.getPartnerID(), getCarIdByPosition(), user.getId(), payment.getId(), listener);
-                RequestQueue queue = Volley.newRequestQueue(getDialog().getContext());
-                queue.add(update_payment);
+                if(tag == "update") {
+                    update_payment update_payment = new update_payment(payment.getClaim(), dateET.getText().toString(), payment.getPartnerID(), getCarIdByPosition(), user.getId(), payment.getId(), listener);
+                    RequestQueue queue = Volley.newRequestQueue(getDialog().getContext());
+                    queue.add(update_payment);
+                }
+                else  {
+                    String query = "INSERT INTO payments (claim, date, partnerID, carID, userID) " +
+                                   "VALUES ("+payment.getClaim()+",CURRENT_TIMESTAMP,"+payment.getPartnerID()+", "+getCarIdByPosition()+", "+user.getId()+")";
+                    editDataByQuery insert_payment = new editDataByQuery(query, listener);
+                    RequestQueue queue = Volley.newRequestQueue(getDialog().getContext());
+                    queue.add(insert_payment);
+                }
+
             }
         });
 
@@ -166,7 +180,7 @@ public class updatePaymentFragment extends DialogFragment {
 
                     }
                 } catch (JSONException e) {
-                    Log.e("shit", e.getMessage());
+                    Log.e("getPaymentData", e.getMessage());
                 }
 
                 closeDialog("Spremanje uspješno.");
@@ -260,7 +274,10 @@ public class updatePaymentFragment extends DialogFragment {
 
         DecimalFormat df = new DecimalFormat("#0.00");
 
-        claimET.setText(df.format(payment.getClaim()));
+        if(payment.getClaim() > 0){
+            claimET.setText(df.format(payment.getClaim()));
+        } else claimET.setHint("Iznos (€)");
+
         dateET.setText(payment.getDate());
 
         progressDialog = new ProgressDialogWait(getDialog().getContext());

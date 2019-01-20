@@ -13,13 +13,33 @@ public class car implements Serializable {
     private Integer partnerID;
     private String note;
     private Double cost;
+    private Integer finished;
+
+
+    public List<String> nameList;
+    public List<String> workRequiredList;
+    public List<Integer> idList;
+    public List<String> receiptDateList;
+    public List<String> dispatchDateList;
+    public List<Integer> partnerIDList;
+    public List<String> noteList;
     public List<Double> costList;
+    public List<Integer> finishedList;
+
+    public Integer getFinished() {
+        return finished;
+    }
+
+    public void setFinished(Integer finished) {
+        this.finished = finished;
+    }
+
 
     public Double getCost() {
         return cost;
     }
 
-    public void setCost(Double cost) {
+    public void   setCost(Double cost) {
         this.cost = cost;
     }
 
@@ -30,16 +50,6 @@ public class car implements Serializable {
     public void setCostList(List<Double> costList) {
         this.costList = costList;
     }
-
-    public List<String> nameList;
-    public List<String> workRequiredList;
-    public List<Integer> idList;
-    public List<String> receiptDateList;
-    public List<String> dispatchDateList;
-    public List<Integer> partnerIDList;
-    public List<String> noteList;
-
-
 
     public String getName() {
         return name;

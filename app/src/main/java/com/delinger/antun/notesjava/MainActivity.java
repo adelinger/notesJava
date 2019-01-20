@@ -23,7 +23,7 @@ import com.android.volley.toolbox.Volley;
 import com.delinger.antun.notesjava.DatabaseConnections.get_cars;
 import com.delinger.antun.notesjava.DatabaseConnections.get_transactions;
 import com.delinger.antun.notesjava.DatabaseConnections.partnerDataClass;
-import com.delinger.antun.notesjava.HelperClasses.connection;
+import com.delinger.antun.notesjava.HelperClasses.Connection;
 import com.delinger.antun.notesjava.Fragments.addNewPartnerFragment;
 import com.delinger.antun.notesjava.HelperClasses.customListPartnersAdapter;
 import com.delinger.antun.notesjava.HelperClasses.userLocalStorage;
@@ -54,7 +54,7 @@ public class MainActivity extends AppCompatActivity implements addNewPartnerFrag
 
     Intent intent;
     ProgressDialog progressDialog;
-    connection connection;
+    Connection Connection;
     customListPartnersAdapter adapter;
 
     private Boolean refresh;
@@ -134,6 +134,7 @@ public class MainActivity extends AppCompatActivity implements addNewPartnerFrag
                         car.partnerIDList.   add(i, Jsonobject.getInt("partnerID"));
                         car.noteList.        add(i, Jsonobject.getString("note"));
                         car.costList.        add(i, Jsonobject.getDouble("cost"));
+                        car.finishedList.    add(i, Jsonobject.getInt("finished"));
 
                     }
                 } catch (JSONException e) {
@@ -259,7 +260,7 @@ public class MainActivity extends AppCompatActivity implements addNewPartnerFrag
         }
 
         user       = new user();
-        connection = new connection();
+        Connection = new Connection();
         refresh    = false;
 
         progressDialog = new ProgressDialog(MainActivity.this);
@@ -276,6 +277,7 @@ public class MainActivity extends AppCompatActivity implements addNewPartnerFrag
         car.nameList         = new ArrayList<>();
         car.workRequiredList = new ArrayList<>();
         car.costList         = new ArrayList<>();
+        car.finishedList     = new ArrayList<>();
     }
    private void instantiatePaymentObject() {
        payment = new payment();
@@ -297,7 +299,7 @@ public class MainActivity extends AppCompatActivity implements addNewPartnerFrag
     }
 
     public void getPartnerData() {
-        if(!connection.isNetworkAvailable(MainActivity.this)) {
+        if(!Connection.isNetworkAvailable(MainActivity.this)) {
             logOut();
         }
         try {

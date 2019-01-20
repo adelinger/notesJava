@@ -6,6 +6,15 @@ import java.util.List;
 public class payment implements Serializable {
     public List<Integer> idList;
     public List<Double> debitList;
+
+    public List<Double> getClaimList() {
+        return claimList;
+    }
+
+    public void setClaimList(List<Double> claimList) {
+        this.claimList = claimList;
+    }
+
     public List<Double> claimList;
     public List<String>  dateList;
     public List<Integer> partnerIdList;

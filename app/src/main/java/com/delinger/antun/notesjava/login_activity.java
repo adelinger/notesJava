@@ -24,7 +24,7 @@ import com.android.volley.toolbox.Volley;
 import com.delinger.antun.notesjava.DatabaseConnections.login_request;
 import com.delinger.antun.notesjava.DatabaseConnections.partnerDataClass;
 import com.delinger.antun.notesjava.HelperClasses.userLocalStorage;
-import com.delinger.antun.notesjava.HelperClasses.connection;
+import com.delinger.antun.notesjava.HelperClasses.Connection;
 import com.delinger.antun.notesjava.Objects.partner;
 import com.delinger.antun.notesjava.Objects.user;
 
@@ -48,7 +48,7 @@ public class login_activity extends AppCompatActivity {
 
     partner partner;
     user user;
-    connection connection;
+    Connection Connection;
 
     private com.delinger.antun.notesjava.HelperClasses.userLocalStorage userLocalStorage;
 
@@ -75,7 +75,7 @@ public class login_activity extends AppCompatActivity {
                  username  = usernameTV.getText().toString().trim();
                  password  = passwordTV.getText().toString().trim();
 
-                 if (!connection.isNetworkAvailable(login_activity.this)) {
+                 if (!Connection.isNetworkAvailable(login_activity.this)) {
                      Toast.makeText(login_activity.this, "Nije moguće izvršiti prijavu. Nije pronađena veza na internet", Toast.LENGTH_LONG).show();
                      return;
                  }
@@ -222,7 +222,7 @@ public class login_activity extends AppCompatActivity {
         user = new user();
 
         userLocalStorage      = new userLocalStorage(this);
-        connection            = new connection();
+        Connection = new Connection();
     }
 }
 

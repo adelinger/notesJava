@@ -1,13 +1,21 @@
 package com.delinger.antun.notesjava;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.toolbox.Volley;
 import com.delinger.antun.notesjava.CustomListViewAdapters.viewCarsAdapter;
+import com.delinger.antun.notesjava.DatabaseConnections.editDataByQuery;
 import com.delinger.antun.notesjava.Fragments.addNewCarFragment;
 import com.delinger.antun.notesjava.Fragments.viewCarFragment;
+import com.delinger.antun.notesjava.HelperClasses.DialogMessage;
+import com.delinger.antun.notesjava.HelperClasses.ProgressDialogWait;
 import com.delinger.antun.notesjava.Objects.car;
 import com.delinger.antun.notesjava.Objects.partner;
 import com.delinger.antun.notesjava.Objects.payment;
@@ -21,11 +29,15 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-public class viewPartnerActivity extends AppCompatActivity implements addNewCarFragment.onCarAdded{
+public class viewPartnerActivity extends AppCompatActivity implements addNewCarFragment.onCarAdded, viewCarFragment.OnUpdateCar{
 
     private TextView debitSumTV;
     private TextView claimSumTV;
@@ -47,6 +59,8 @@ public class viewPartnerActivity extends AppCompatActivity implements addNewCarF
     private car newCar;
     private payment payment;
     private user user;
+
+    ProgressDialogWait progressDialogWait;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,7 +106,15 @@ public class viewPartnerActivity extends AppCompatActivity implements addNewCarF
                 performItemClickAction(i);
             }
         });
+        carsListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
+                performOnItemLongClickAction(i);
+                return true;
+            }
+        });
     }
+
 
     private void performItemClickAction(int position) {
         viewCarFragment viewCarFragment = new viewCarFragment();
@@ -103,9 +125,124 @@ public class viewPartnerActivity extends AppCompatActivity implements addNewCarF
         bundle.putInt   ("carID",           newCar.idList.get(position));
         bundle.putDouble("carCost",         newCar.costList.get(position));
         bundle.putString("carNote",         newCar.noteList.get(position));
+        bundle.putInt   ("finished",        newCar.finishedList.get(position));
+        bundle.putInt   ("partnerID",       partner.getId());
+        bundle.putDouble("claimSum",        getClaimSumForThisCar(newCar.idList.get(position)));
         viewCarFragment.setArguments(bundle);
         viewCarFragment.show(getFragmentManager().beginTransaction(), "viewCar");
     }
+
+    private void performOnItemLongClickAction(final Integer i) {
+        final Integer position = i;
+        AlertDialog.Builder builder = new AlertDialog.Builder(viewPartnerActivity.this);
+
+        builder.setNeutralButton("Obriši unos", new DialogInterface.OnClickListener(){
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(viewPartnerActivity.this);
+                builder.setMessage("Jeste li sigurni da želite obrisati ovu uplatu?");
+                builder.setPositiveButton("Obriši", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface builder, int which) {
+                        deleteSelectedItem(position);
+                    }
+                });
+                builder.setNegativeButton("Odustani", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.dismiss();
+                    }
+                });
+                builder.create();
+                builder.setCancelable(false);
+                builder.show();
+            }
+        });
+        builder.create();
+        builder.setCancelable(true);
+        builder.show();
+    }
+
+    private void deleteSelectedItem(final Integer position) {
+            Response.Listener<String> listener = new Response.Listener<String>() {
+                @Override
+                public void onResponse(String response) {
+                    int save_result = 0;
+                    int carID = car.idList.get(position);
+                    try {
+                        JSONArray jsonresponse = new JSONArray(response);
+                        for(int i=0;i<jsonresponse.length();i++)
+                        {
+                            JSONObject Jasonobject = null;
+                            Jasonobject = jsonresponse.getJSONObject(i);
+                            save_result =  Jasonobject.getInt("rezultat");
+
+                            if(save_result == 0) DialogMessage.throwNotSuccessfulMessage("Neuspješno brisanje.", viewPartnerActivity.this);
+                            if(save_result == 1) deletePayments(carID);
+                        }
+
+                    } catch (JSONException e) {
+                       Log.e("deleteSelected", e.getMessage());
+                    }
+                }
+            };
+            progressDialogWait.start();
+            String query = "DELETE FROM cars WHERE id = "+car.idList.get(position)+" ";
+            editDataByQuery editData = new editDataByQuery(query, listener);
+            RequestQueue queue = Volley.newRequestQueue(viewPartnerActivity.this);
+            queue.add(editData);
+    }
+
+    private void deletePayments(final Integer carID) {
+        Response.Listener<String> listener = new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                int save_result = 0;
+                try {
+                    JSONArray jsonresponse = new JSONArray(response);
+                    for(int i=0;i<jsonresponse.length();i++)
+                    {
+                        JSONObject Jasonobject = null;
+                        Jasonobject = jsonresponse.getJSONObject(i);
+                        save_result =  Jasonobject.getInt("rezultat");
+
+                        if(save_result == 0) DialogMessage.throwNotSuccessfulMessage("Neuspješno brisanje.", viewPartnerActivity.this);
+                        if(save_result == 1) deleteFromObject(carID);
+                    }
+
+                } catch (JSONException e) {
+                    Log.e("deleteSelected", e.getMessage());
+                }
+                progressDialogWait.dismis();
+            }
+        };
+        progressDialogWait.start();
+        String query = "DELETE FROM payments WHERE carID = "+carID+" ";
+        editDataByQuery editData = new editDataByQuery(query, listener);
+        RequestQueue queue = Volley.newRequestQueue(viewPartnerActivity.this);
+        queue.add(editData);
+    }
+
+    private void deleteFromObject(Integer carID) {
+        for (int i = 0; i <newCar.idList.size() ; i++) {
+            if(newCar.idList.get(i).equals(carID)) {
+                newCar.idList.remove(i);
+                newCar.nameList.remove(i);
+                newCar.finishedList.remove(i);
+                newCar.costList.remove(i);
+                newCar.partnerIDList.remove(i);
+                newCar.costList.remove(i);
+                newCar.receiptDateList.remove(i);
+                newCar.dispatchDateList.remove(i);
+                newCar.workRequiredList.remove(i);
+                newCar.noteList.remove(i);
+            }
+        }
+        resetListView();
+        progressDialogWait.dismis();
+    }
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -142,6 +279,7 @@ public class viewPartnerActivity extends AppCompatActivity implements addNewCarF
         for (int i=0; i<payment.claimList.size(); i++){
             claimSum = claimSum + payment.claimList.get(i);
         }
+
         balance = claimSum - debitSum;
 
         DecimalFormat df = new DecimalFormat("#0.00");
@@ -170,6 +308,7 @@ public class viewPartnerActivity extends AppCompatActivity implements addNewCarF
                     newCar.workRequiredList.add(car.workRequiredList.get(i));
                     newCar.idList.          add(car.idList.get(i));
                     newCar.costList.        add(car.costList.get(i));
+                    newCar.finishedList.    add(car.finishedList.get(i));
                 }
             }
 
@@ -200,6 +339,16 @@ public class viewPartnerActivity extends AppCompatActivity implements addNewCarF
         } catch (Exception e) {
             Log.e("getpaymentsdata", e.getMessage());
         }
+    }
+
+    private Double getClaimSumForThisCar (Integer carID) {
+        Double claimSum = 0.00;
+        for (int i = 0; i < payment.claimList.size(); i++) {
+            if(payment.partnerIdList.get(i).equals(partner.getId()) && payment.carIdList.get(i).equals(carID)){
+                claimSum = claimSum + payment.claimList.get(i);
+            }
+        }
+        return claimSum;
     }
 
     private void setListView() {
@@ -241,7 +390,8 @@ public class viewPartnerActivity extends AppCompatActivity implements addNewCarF
         partner  = new partner();
         intent   = new Intent();
 
-        emptyList = new ArrayList<String>();
+        emptyList          = new ArrayList<String>();
+        progressDialogWait = new ProgressDialogWait(viewPartnerActivity.this);
 
         car = new car();
 
@@ -254,6 +404,7 @@ public class viewPartnerActivity extends AppCompatActivity implements addNewCarF
         newCar.nameList         = new ArrayList<>();
         newCar.workRequiredList = new ArrayList<>();
         newCar.costList         = new ArrayList<>();
+        newCar.finishedList     = new ArrayList<>();
 
         payment = new payment();
         payment.idList        = new ArrayList<>();
@@ -274,7 +425,6 @@ public class viewPartnerActivity extends AppCompatActivity implements addNewCarF
         newCar = new car();
         newCar = car;
 
-        Log.e("price", addedCarPrice.toString() + price.toString());
         addedCarPrice = addedCarPrice + price;
         recalculatePayments(addedCarPrice);
         resetListView();
@@ -290,5 +440,14 @@ public class viewPartnerActivity extends AppCompatActivity implements addNewCarF
             viewCarsAdapter adapter = new viewCarsAdapter(viewPartnerActivity.this, newCar, payment);
             carsListView.setAdapter(adapter);
         }
+    }
+
+    @Override
+    public void isCompleted(com.delinger.antun.notesjava.Objects.car newCar, Double addedCarPrice, payment payment) {
+        this.newCar  = newCar;
+        this.payment = payment;
+
+        recalculatePayments(0.00);
+        resetListView();
     }
 }

@@ -5,7 +5,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.widget.Toast;
 
-public class connection {
+public class Connection {
 
     public static boolean isNetworkAvailable(final Context context) {
 

@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class editDataByQuery extends StringRequest {
-    private static final String partnerDataURL = "https://autotoni.hr/notes/selectDataByQuery.php";
+    private static final String partnerDataURL = "https://autotoni.hr/notes/editDataByQuery.php";
     private Map<String, String> params;
 
     public editDataByQuery(String query, Response.Listener<String> listener){
