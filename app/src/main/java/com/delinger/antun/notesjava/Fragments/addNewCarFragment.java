@@ -120,8 +120,8 @@ public class addNewCarFragment extends DialogFragment {
                 }
             }
         };
-
-        add_car addCar = new add_car(car.getName(), car.getWorkRequired(),car.getReceiptDate(), car.getDispatchDate(), partner.getId(),listener);
+        price = Double.parseDouble(priceET.getText().toString());
+        add_car addCar = new add_car(car.getName(), car.getWorkRequired(),car.getReceiptDate(), car.getDispatchDate(), partner.getId(), price, listener);
         RequestQueue queue = Volley.newRequestQueue(getDialog().getContext());
         queue.add(addCar);
     }

@@ -169,7 +169,7 @@ public class viewPartnerActivity extends AppCompatActivity implements addNewCarF
                 @Override
                 public void onResponse(String response) {
                     int save_result = 0;
-                    int carID = car.idList.get(position);
+                    int carID = newCar.idList.get(position);
                     try {
                         JSONArray jsonresponse = new JSONArray(response);
                         for(int i=0;i<jsonresponse.length();i++)
@@ -188,7 +188,7 @@ public class viewPartnerActivity extends AppCompatActivity implements addNewCarF
                 }
             };
             progressDialogWait.start();
-            String query = "DELETE FROM cars WHERE id = "+car.idList.get(position)+" ";
+            String query = "DELETE FROM cars WHERE id = "+newCar.idList.get(position)+" ";
             editDataByQuery editData = new editDataByQuery(query, listener);
             RequestQueue queue = Volley.newRequestQueue(viewPartnerActivity.this);
             queue.add(editData);
@@ -225,22 +225,29 @@ public class viewPartnerActivity extends AppCompatActivity implements addNewCarF
     }
 
     private void deleteFromObject(Integer carID) {
-        for (int i = 0; i <newCar.idList.size() ; i++) {
-            if(newCar.idList.get(i).equals(carID)) {
-                newCar.idList.remove(i);
-                newCar.nameList.remove(i);
-                newCar.finishedList.remove(i);
-                newCar.costList.remove(i);
-                newCar.partnerIDList.remove(i);
-                newCar.costList.remove(i);
-                newCar.receiptDateList.remove(i);
-                newCar.dispatchDateList.remove(i);
-                newCar.workRequiredList.remove(i);
-                newCar.noteList.remove(i);
+        try{
+            for (int i = 0; i <newCar.idList.size() ; i++) {
+                if(newCar.idList.get(i).equals(carID)) {
+                    newCar.idList.remove(i);
+                    newCar.nameList.remove(i);
+                    newCar.finishedList.remove(i);
+                    newCar.costList.remove(i);
+                    newCar.partnerIDList.remove(i);
+                    newCar.receiptDateList.remove(i);
+                    newCar.dispatchDateList.remove(i);
+                    newCar.workRequiredList.remove(i);
+                    newCar.noteList.remove(i);
+                    i=10000;
+                }
             }
+            resetListView();
+            progressDialogWait.dismis();
+        } catch(Exception e) {
+            Log.e("deleteFromObject", e.getMessage());
+            resetListView();
+            progressDialogWait.dismis();
         }
-        resetListView();
-        progressDialogWait.dismis();
+
     }
 
 
@@ -392,8 +399,6 @@ public class viewPartnerActivity extends AppCompatActivity implements addNewCarF
 
         emptyList          = new ArrayList<String>();
         progressDialogWait = new ProgressDialogWait(viewPartnerActivity.this);
-
-        car = new car();
 
         newCar = new car();
         newCar.noteList         = new ArrayList<>();
