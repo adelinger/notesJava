@@ -99,32 +99,32 @@ public class addNewCarFragment extends DialogFragment {
         return view;
     }
 
-    private void addCar() {
-        Response.Listener<String> listener = new Response.Listener<String>() {
-            @Override
-            public void onResponse(String response) {
-                try {
-                    JSONArray jsonresponse = new JSONArray(response);
-                    for(int i=0;i<jsonresponse.length();i++)
-                    {
-                        JSONObject Jasonobject = null;
-                        Jasonobject = jsonresponse.getJSONObject(i);
-                        save_result =  Jasonobject.getInt("rezultat");
+        private void addCar() {
+            Response.Listener<String> listener = new Response.Listener<String>() {
+                @Override
+                public void onResponse(String response) {
+                    try {
+                        JSONArray jsonresponse = new JSONArray(response);
+                        for(int i=0;i<jsonresponse.length();i++)
+                        {
+                            JSONObject Jasonobject = null;
+                            Jasonobject = jsonresponse.getJSONObject(i);
+                            save_result =  Jasonobject.getInt("rezultat");
 
-                        if(save_result == 0) throwNotSuccessfulMessage("Neuspješno dodavanje vozila.");
-                        if(save_result == 1) getNewCar();
+                            if(save_result == 0) throwNotSuccessfulMessage("Neuspješno dodavanje vozila.");
+                            if(save_result == 1) getNewCar();
+                        }
+
+                    } catch (JSONException e) {
+                        Log.e("shit", e.getMessage());
                     }
-
-                } catch (JSONException e) {
-                    Log.e("shit", e.getMessage());
                 }
-            }
-        };
-        price = Double.parseDouble(priceET.getText().toString());
-        add_car addCar = new add_car(car.getName(), car.getWorkRequired(),car.getReceiptDate(), car.getDispatchDate(), partner.getId(), price, listener);
-        RequestQueue queue = Volley.newRequestQueue(getDialog().getContext());
-        queue.add(addCar);
-    }
+            };
+            price = Double.parseDouble(priceET.getText().toString());
+            add_car addCar = new add_car(car.getName(), car.getWorkRequired(),car.getReceiptDate(), car.getDispatchDate(), partner.getId(), price, listener);
+            RequestQueue queue = Volley.newRequestQueue(getDialog().getContext());
+            queue.add(addCar);
+        }
 
     private void insertDebt() {
         Response.Listener<String> listener = new Response.Listener<String>() {
